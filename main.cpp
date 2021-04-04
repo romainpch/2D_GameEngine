@@ -5,10 +5,10 @@
 #include <SDL2/SDL_image.h>
 
 
-#include "Timer.cpp"
-#include "Entity.cpp"
-#include "Map.cpp"
-#include "Camera.cpp"
+#include "./src/Timer.cpp"
+#include "./src/Entity.cpp"
+#include "./src/Map.cpp"
+#include "./src/Camera.cpp"
 
 
 using namespace std ;
@@ -96,7 +96,7 @@ int main(int argc, char const *argv[]){
 
         //Map Initialisation
         Map* Game_Map = new Map;
-        Game_Map->LoadMapFromFile("./map.txt") ;
+        Game_Map->LoadMapFromFile("./data/map.txt") ;
 
         BG_Object object1(0.25,300,400,700,800,131,131,131) ;
         BG_Object object2(0.25,750,300,500,800,131,131,131) ;

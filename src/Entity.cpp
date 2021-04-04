@@ -69,7 +69,9 @@ void Player::HandleEvents(SDL_Event e){
                     isAccelX = true ;
                     break;
                 case SDLK_SPACE :
-                    mTaccelY = -1 ;
+                    if(mTaccelY==0){
+                        mTaccelY = -1 ;
+                    }
                     break ;
                 default:
                     break;
