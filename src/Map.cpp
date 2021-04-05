@@ -22,6 +22,7 @@ BG_Object::BG_Object(double speed,int x, int y, int w, int h, Uint8 R, Uint8 G, 
 
 BG_Object::~BG_Object(){
     delete mRect ;
+    delete mRenderRect ;
 }
 
 double BG_Object::GetSpeed(){
@@ -52,6 +53,9 @@ void BG_Object::Render(SDL_Renderer* renderer){
 
 // Map_________________________________________________________________________________________________________________
 Map::Map():mTileWidth(128){}
+Map::~Map(){
+    delete mPlayerCam ;
+}
 
 void Map::LoadMapFromFile(string path){
     ifstream MapFile(path) ;

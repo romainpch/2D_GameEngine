@@ -51,7 +51,7 @@ class Map{
 
     public :
         Map() ;
-        ~Map(){} ; 
+        ~Map() ; 
 
         vector<vector<SDL_Rect* > > GetGameMap(){return mGameMap ;} ;           
         int GetTileWidth(){return mTileWidth ;} ;

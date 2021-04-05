@@ -9,6 +9,7 @@
 #include "./src/Entity.cpp"
 #include "./src/Map.cpp"
 #include "./src/Camera.cpp"
+#include "./src/Animation.cpp"
 
 
 using namespace std ;
@@ -111,12 +112,16 @@ int main(int argc, char const *argv[]){
         
         Game_Map->SetPlayerCam(Game_Cam) ;
         //Player Initialisation
-        int PlayerWidth(128) ;
-        int PlayerHeight(256) ;
+        int PlayerWidth(6*16) ;
+        int PlayerHeight(16*16) ;
         Player Game_Player ;
         Game_Player.SetDimension(PlayerWidth,PlayerHeight) ;
         Game_Player.SetCamera(Game_Cam) ;
+        Game_Player.AddAnimation("idle", "./data/animations/player/idle/", vector<int>(4,5), "idle") ;
 
+        Game_Player.ChangeAction("idle") ;
+
+    
         bool isFULLSCREEN = true ;
         bool quit = false;
 
@@ -159,9 +164,6 @@ int main(int argc, char const *argv[]){
                 Game_Player.HandleEvents(e) ;
             }
             
-            
-            
-            
             Game_Player.Move(Game_Map, gRenderer) ;
             Game_Player.UpdateCam() ;
 
@@ -169,9 +171,8 @@ int main(int argc, char const *argv[]){
             Game_Map->RenderBackGround(gRenderer) ;
             Game_Map->Render(gRenderer) ;
             
-            
-            
             Game_Player.Render(gRenderer) ;
+            Game_Player.ShowHitbox(gRenderer) ;
 
             //Update the surface
             SDL_RenderPresent( gRenderer );

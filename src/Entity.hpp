@@ -8,9 +8,11 @@
 #include <vector>
 #include <string>
 #include <map>
+#include <unordered_map>
 
 #include "Camera.hpp"
 #include "Map.hpp" 
+#include "Animation.hpp"
 
 using namespace std ;
 
@@ -19,28 +21,37 @@ using namespace std ;
 
 class Entity{
     protected :
-        int mPosXabs, mPosYabs ;
-        int mPosXrel, mPosYrel ;
-        int mWidth, mHeight ;
+        SDL_Rect* mHitboxAbs ;
+        SDL_Rect* mHitboxRel ;
         
+        SDL_RendererFlip mFlip ;
+
+        //Animation
+        unordered_map< string, Animation* > mAnimationDatabase ; //Dictionnary of every animations
+        string mAction ; //Current Animation
+        int mActionFrameNumber ;
+
+
     public :
         Entity() ;
-        ~Entity(){} ;
+        ~Entity() ;
 
-        int GetPosXabs(){return mPosXabs ;} ;
-        int GetPosYabs(){return mPosYabs ;} ;
-        int GetPosXrel(){return mPosXrel ;} ;
-        int GetPosYrel(){return mPosYrel ;} ;
-        int GetWidth(){return mWidth ;} ;
-        int GetHeight(){return mHeight ;} ;
+        int GetPosXabs(){return mHitboxAbs->x ;}
+        int GetPosYabs(){return mHitboxAbs->y ;} 
+        int GetPosXrel(){return mHitboxRel->x ;}
+        int GetPosYrel(){return mHitboxRel->y ;}
+        int GetWidth(){return mHitboxAbs->w ;}
+        int GetHeight(){return mHitboxAbs->h ;}
 
         void SetPosAbs(int Xabs, int Yabs) ;
         void SetPosRel(int Xrel, int Yrel) ;
         void SetDimension(int Width, int Height) ;
 
+        void AddAnimation(string animationName, string path, vector<int> animationLengths, string nextAnimation) ;
+        void ChangeAction(string actionName){mAction = actionName ;}
         
-
-        void Render(SDL_Renderer * renderer) ;        
+        void Render(SDL_Renderer * renderer) ;
+        void ShowHitbox(SDL_Renderer * renderer) ;        
 } ;
 
 
@@ -59,7 +70,7 @@ class Player : public Entity{
         Player() ;
         ~Player(){} ;
 
-        void SetCamera(Camera* cam){mPlayerCam = cam ;} ;
+        void SetCamera(Camera* cam){mPlayerCam = cam ;}
 
         void SetFullScreen(bool isFULLSCREEN, int playerWidth, int playerHeight) ;
 
