@@ -117,9 +117,6 @@ int main(int argc, char const *argv[]){
         Player Game_Player ;
         Game_Player.SetDimension(PlayerWidth,PlayerHeight) ;
         Game_Player.SetCamera(Game_Cam) ;
-        Game_Player.AddAnimation("idle", "./data/animations/player/idle/", vector<int>(4,5), "idle") ;
-
-        Game_Player.ChangeAction("idle") ;
 
     
         bool isFULLSCREEN = true ;
@@ -172,7 +169,7 @@ int main(int argc, char const *argv[]){
             Game_Map->Render(gRenderer) ;
             
             Game_Player.Render(gRenderer) ;
-            Game_Player.ShowHitbox(gRenderer) ;
+            // Game_Player.ShowHitbox(gRenderer) ;
 
             //Update the surface
             SDL_RenderPresent( gRenderer );

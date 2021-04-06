@@ -47,7 +47,6 @@ class Entity{
         void SetPosRel(int Xrel, int Yrel) ;
         void SetDimension(int Width, int Height) ;
 
-        void AddAnimation(string animationName, string path, vector<int> animationLengths, string nextAnimation) ;
         void ChangeAction(string actionName){mAction = actionName ;}
         
         void Render(SDL_Renderer * renderer) ;

@@ -2,7 +2,7 @@
 
 
 // Entity______________________________________________________________________________________________________________
-Entity::Entity() : mFlip(SDL_FLIP_NONE), mAnimationDatabase(0), mAction(""), mActionFrameNumber(0) {
+Entity::Entity() : mFlip(SDL_FLIP_NONE), mAction("idle"), mActionFrameNumber(0) {
     mHitboxAbs = new SDL_Rect;
     mHitboxAbs->x = 0 ;
     mHitboxAbs->y = 0 ;
@@ -14,6 +14,15 @@ Entity::Entity() : mFlip(SDL_FLIP_NONE), mAnimationDatabase(0), mAction(""), mAc
     mHitboxRel->y = 0 ;
     mHitboxRel->w = 0 ;
     mHitboxRel->h = 0 ;
+
+    Animation* idle = new Animation("idle", "./data/animations/player/idle/", vector<int>(2,30), "idle") ;
+    mAnimationDatabase["idle"] = idle ;
+    Animation* run = new Animation("run", "./data/animations/player/run/", vector<int>(9,4), "run") ;
+    mAnimationDatabase["run"] = run ;
+    Animation* jump_up = new Animation("jump_up", "./data/animations/player/jump_up/", vector<int>(4,3), "jump_up") ;
+    mAnimationDatabase["jump_up"] = jump_up ;
+    Animation* jump_down = new Animation("jump_down", "./data/animations/player/jump_down/", vector<int>(4,3), "jump_down") ;
+    mAnimationDatabase["jump_down"] = jump_down ;
 }
 
 Entity::~Entity(){
@@ -38,18 +47,13 @@ void Entity::SetDimension(int Width, int Height){
     mHitboxRel->h = Height ;
 }
 
-void Entity::AddAnimation(string animationName, string path, vector<int> animationLengths, string nextAnimation){
-    Animation* animation = new Animation(animationName, path, animationLengths, nextAnimation) ;
-    mAnimationDatabase[animationName] = animation ;
-}
-
 void Entity::Render(SDL_Renderer * renderer){
     SDL_Surface* frameSurface = mAnimationDatabase[mAction]->GetImage(mActionFrameNumber) ;
     SDL_Rect frameRect ;
-    frameRect.x = mHitboxRel->x - 80 ;
+    frameRect.x = mHitboxRel->x - (mHitboxRel->h-mHitboxRel->w)/2 ;
     frameRect.y = mHitboxRel->y ;
-    frameRect.w = 256 ;
-    frameRect.h = 256 ;
+    frameRect.w = mHitboxRel->h ;
+    frameRect.h = mHitboxRel->h ;
 
     SDL_SetColorKey( frameSurface, SDL_TRUE, SDL_MapRGBA( frameSurface->format, 0xFF, 0xFF, 0xFF, 0xFF) );
     SDL_Texture* frameTexture = SDL_CreateTextureFromSurface(renderer, frameSurface);
@@ -75,12 +79,16 @@ void Player::SetFullScreen(bool isFULLSCREEN, int playerWidth, int playerHeight)
     if(isFULLSCREEN){
         mHitboxAbs->w = playerWidth ;
         mHitboxAbs->h = playerHeight ;
+        mHitboxRel->w = playerWidth ;
+        mHitboxRel->h = playerHeight ;
         mVelX = 20 ;
         mVelY = 40 ;
     }
     else{
         mHitboxAbs->w = playerWidth/2 ;
         mHitboxAbs->h = playerHeight/2 ;
+        mHitboxRel->w = playerWidth/2 ;
+        mHitboxRel->h = playerHeight/2 ;
         mVelX = 10 ;
         mVelY = 20 ;
     }
@@ -91,17 +99,17 @@ void Player::HandleEvents(SDL_Event e){
     if( e.type == SDL_KEYDOWN && e.key.repeat == 0 ){
             //Adjust the velocity
             switch( e.key.keysym.sym ){
-                case SDLK_LEFT: 
+                case SDLK_q: 
                     mFlip = SDL_FLIP_HORIZONTAL ;
                     mDirection = -1 ;
                     isAccelX = true ;
                     break;
-                case SDLK_RIGHT:
+                case SDLK_d:
                     mFlip = SDL_FLIP_NONE ;
                     mDirection = 1 ;
                     isAccelX = true ;
                     break;
-                case SDLK_SPACE :
+                case SDLK_z :
                     if(mTaccelY==0){
                         mTaccelY = -1 ;
                     }
@@ -114,10 +122,10 @@ void Player::HandleEvents(SDL_Event e){
     else if( e.type == SDL_KEYUP && e.key.repeat == 0 ){
         //Adjust the velocity
         switch( e.key.keysym.sym ){
-            case SDLK_LEFT:
+            case SDLK_q:
                 isAccelX = false ;
                 break ;
-            case SDLK_RIGHT:
+            case SDLK_d:
                 isAccelX = false ;
                 break;
             default:
@@ -193,19 +201,30 @@ void Player::Move(Map* map, SDL_Renderer* renderer){
         switch (mDirection){
         case 1:
             mHitboxAbs->x = tile->x - mHitboxAbs->w - mPlayerCam->GetXoffset();
+            mTaccelX = 0 ;
             mCollisionStatus["right"] = true ;
             break;
         case -1:
             mHitboxAbs->x = tile->x + tile->w - mPlayerCam->GetXoffset();
+            mTaccelX = 0 ;
             mCollisionStatus["left"] = true ;
             break;
         }
+    }
+
+    if(int(mTaccelX*mVelX) == 0){
+        mAction = "idle" ;
+    }
+    else{
+        mAction = "run" ;
     }
 
     //The player moves along Y axis
     mTaccelY += 0.08 ;
     if (mTaccelY > 1){mTaccelY = 1 ;}
     mHitboxAbs->y += int(floor(mTaccelY*mVelY));
+
+
 
     // Handle Up Down Collisions
     CollisionsList = GetCollisionsList(map, renderer) ;
@@ -223,10 +242,17 @@ void Player::Move(Map* map, SDL_Renderer* renderer){
         }
     }
 
+    if(mTaccelY < 0){
+        mAction = "jump_up" ;
+    }
+    else if(mTaccelY > 0){
+        mAction = "jump_down" ;
+    }
+
     //Animation of the player 
     mActionFrameNumber ++ ;
 
-    if(mActionFrameNumber == mAnimationDatabase[mAction]->GetSize()){
+    if(mActionFrameNumber >= mAnimationDatabase[mAction]->GetSize()){
         mAction = mAnimationDatabase[mAction]->GetNext() ;
         mActionFrameNumber = 0 ;
     }
