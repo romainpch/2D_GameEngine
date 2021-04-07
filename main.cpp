@@ -8,8 +8,10 @@
 #include "./src/Timer.cpp"
 #include "./src/Entity.cpp"
 #include "./src/Map.cpp"
+#include "./src/World.cpp"
 #include "./src/Camera.cpp"
 #include "./src/Animation.cpp"
+
 
 
 using namespace std ;
@@ -90,25 +92,25 @@ int main(int argc, char const *argv[]){
 	}
     else{
         //Camera Initialisation
-        int PlayerXOffset(350) ;
-        int PlayerYOffset(768) ;
+        int PlayerXOffset(360) ;
+        int PlayerYOffset(704) ;
         Camera* Game_Cam = new Camera(PlayerXOffset, PlayerYOffset) ;
 
 
         //Map Initialisation
-        Map* Game_Map = new Map;
-        Game_Map->LoadMapFromFile("./data/map.txt") ;
+        World* Game_Map = new World;
+        Game_Map->LoadFromFile("./data/map.txt") ;
 
-        BG_Object object1(0.25,300,400,700,800,131,131,131) ;
-        BG_Object object2(0.25,750,300,500,800,131,131,131) ;
-        BG_Object object3(0.5,1500,350,400,800,108,108,108) ;
-        BG_Object object4(0.5,250,100,100,800,108,108,108) ;
-        BG_Object object5(0.5,600,200,300,800,108,108,108) ;
-        Game_Map->AddBGObject(&object1) ;
-        Game_Map->AddBGObject(&object2) ;
-        Game_Map->AddBGObject(&object3) ;
-        Game_Map->AddBGObject(&object4) ;
-        Game_Map->AddBGObject(&object5) ;
+        // BG_Object object1(0.25,300,400,700,800,131,131,131) ;
+        // BG_Object object2(0.25,750,300,500,800,131,131,131) ;
+        // BG_Object object3(0.5,1500,350,400,800,108,108,108) ;
+        // BG_Object object4(0.5,250,100,100,800,108,108,108) ;
+        // BG_Object object5(0.5,600,200,300,800,108,108,108) ;
+        // Game_Map->AddBGObject(&object1) ;
+        // Game_Map->AddBGObject(&object2) ;
+        // Game_Map->AddBGObject(&object3) ;
+        // Game_Map->AddBGObject(&object4) ;
+        // Game_Map->AddBGObject(&object5) ;
         
         Game_Map->SetPlayerCam(Game_Cam) ;
         //Player Initialisation
@@ -123,6 +125,9 @@ int main(int argc, char const *argv[]){
         bool quit = false;
 
         SDL_Event e;
+
+
+
         while(!quit){
             SDL_RenderClear( gRenderer );
             //Handle events on queue
@@ -145,14 +150,14 @@ int main(int argc, char const *argv[]){
                             SDL_SetWindowFullscreen(gWindow , SDL_FALSE);
                             Game_Player.SetFullScreen(isFULLSCREEN, PlayerWidth, PlayerHeight) ;
                             Game_Cam->SetFullScreen(isFULLSCREEN, PlayerXOffset, PlayerYOffset) ;
-                            Game_Map->SetFullScreen(isFULLSCREEN) ;
+                            // Game_Map->SetFullScreen(isFULLSCREEN) ;
                         }
                         else{
                             SDL_SetWindowSize(gWindow , SCREEN_WIDTH , SCREEN_HEIGHT);
                             SDL_SetWindowFullscreen(gWindow , SDL_TRUE);
                             Game_Player.SetFullScreen(isFULLSCREEN, PlayerWidth, PlayerHeight) ;
                             Game_Cam->SetFullScreen(isFULLSCREEN, PlayerXOffset, PlayerYOffset) ;
-                            Game_Map->SetFullScreen(isFULLSCREEN) ;
+                            // Game_Map->SetFullScreen(isFULLSCREEN) ;
                         }
                     }
 
@@ -163,16 +168,18 @@ int main(int argc, char const *argv[]){
             
             Game_Player.Move(Game_Map, gRenderer) ;
             Game_Player.UpdateCam() ;
-
             Game_Map->Update() ;
-            Game_Map->RenderBackGround(gRenderer) ;
-            Game_Map->Render(gRenderer) ;
+
             
+            // Game_Map->RenderBackGround(gRenderer) ;
+            Game_Map->Render(gRenderer) ;
             Game_Player.Render(gRenderer) ;
             // Game_Player.ShowHitbox(gRenderer) ;
 
             //Update the surface
             SDL_RenderPresent( gRenderer );
+
+
         }
     }
     //Free resources and close SDL
@@ -184,3 +191,11 @@ int main(int argc, char const *argv[]){
 
 
 
+
+//Start counting frames per second
+// int countedFrames = 0;
+// fpsTimer.start();
+//Calculate and correct fps
+// float avgFPS = countedFrames / ( fpsTimer.getTicks() / 1000.f );
+// cout<<avgFPS<<endl ;
+// ++countedFrames;

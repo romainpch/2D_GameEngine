@@ -12,6 +12,7 @@
 
 #include "Camera.hpp"
 #include "Map.hpp" 
+#include "World.hpp"
 #include "Animation.hpp"
 
 using namespace std ;
@@ -79,11 +80,10 @@ class Player : public Entity{
         bool CheckCollisionRight(SDL_Rect* rect) ;
 
         bool CheckCollisions(SDL_Rect* rect) ;
-        vector<SDL_Rect*> GetCollisionsList(Map* map, SDL_Renderer* renderer) ;
-        void Collide(Map* map, SDL_Renderer* renderer) ;
+        vector<SDL_Rect*> GetCollisionsList(World* world, SDL_Renderer* renderer) ;
 
         void HandleEvents(SDL_Event e) ;
-        void Move(Map* map, SDL_Renderer* renderer) ;
+        void Move(World* world, SDL_Renderer* renderer) ;
 
         void UpdateCam() ;
 } ;

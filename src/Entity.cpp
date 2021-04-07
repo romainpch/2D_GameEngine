@@ -109,7 +109,7 @@ void Player::HandleEvents(SDL_Event e){
                     mDirection = 1 ;
                     isAccelX = true ;
                     break;
-                case SDLK_z :
+                case SDLK_SPACE :
                     if(mTaccelY==0){
                         mTaccelY = -1 ;
                     }
@@ -162,15 +162,15 @@ bool Player::CheckCollisions(SDL_Rect* rect){
     return true;
 }
 
-vector<SDL_Rect*> Player::GetCollisionsList(Map* map, SDL_Renderer* renderer){
+vector<SDL_Rect*> Player::GetCollisionsList(World* world, SDL_Renderer* renderer){
     vector<SDL_Rect*> CollisionsList ;
-    vector<vector<SDL_Rect*> > GameMap = map->GetGameMap() ;
+    vector<vector<Tile*> > GameMap = world->GetGameMap() ;
 
     for(int i=0 ; i<GameMap.size(); i++){
         for(int j=0 ; j<GameMap[i].size() ; j++){
             if(GameMap[i][j] != nullptr){
-                if(this->CheckCollisions(GameMap[i][j])){
-                    CollisionsList.push_back(GameMap[i][j]) ;
+                if(this->CheckCollisions(GameMap[i][j]->mRectAbs)){
+                    CollisionsList.push_back(GameMap[i][j]->mRectAbs) ;
                 }
             }
         }
@@ -179,7 +179,7 @@ vector<SDL_Rect*> Player::GetCollisionsList(Map* map, SDL_Renderer* renderer){
 }
 
 
-void Player::Move(Map* map, SDL_Renderer* renderer){
+void Player::Move(World* world, SDL_Renderer* renderer){
     mCollisionStatus["up"] = false ;
     mCollisionStatus["down"] = false ;
     mCollisionStatus["left"] = false ;
@@ -193,7 +193,7 @@ void Player::Move(Map* map, SDL_Renderer* renderer){
     mHitboxAbs->x += mDirection*int(mTaccelX*mVelX);
     
     // Handle Left Right Collisions 
-    CollisionsList = GetCollisionsList(map, renderer) ;
+    CollisionsList = GetCollisionsList(world, renderer) ;
     for(int i=0 ; i< CollisionsList.size() ; i++){
         SDL_Rect* tile = CollisionsList[i] ;
         
@@ -227,7 +227,7 @@ void Player::Move(Map* map, SDL_Renderer* renderer){
 
 
     // Handle Up Down Collisions
-    CollisionsList = GetCollisionsList(map, renderer) ;
+    CollisionsList = GetCollisionsList(world, renderer) ;
     for(int i=0 ; i< CollisionsList.size() ; i++){
         SDL_Rect* tile = CollisionsList[i] ;
         if(mTaccelY > 0){
