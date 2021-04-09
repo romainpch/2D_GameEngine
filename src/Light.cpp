@@ -1,5 +1,5 @@
 #include "Light.hpp"
-#include "SDL2_gfxPrimitives.h"
+#include "SDL2/SDL2_gfxPrimitives.h"
 
 Light::Light():mPosRelX(0), mPosRelY(0){
     mWorldCells = new sCell[21 * 15];

@@ -16,8 +16,8 @@
 using namespace std ;
 
 // SDL Settings
-const int SCREEN_WIDTH = 1920;
-const int SCREEN_HEIGHT = 1080;
+const int SCREEN_WIDTH = 1280;
+const int SCREEN_HEIGHT = 800;
 SDL_Window* gWindow = NULL;
 SDL_Renderer* gRenderer = NULL ;
 
@@ -39,7 +39,8 @@ bool init(){
 		}
 
 		//Create window
-		gWindow = SDL_CreateWindow( "Mysterious Fox", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_FULLSCREEN);
+		gWindow = SDL_CreateWindow( "Mysterious Fox", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, SDL_WINDOW_FULLSCREEN_DESKTOP);
+
 		if( gWindow == NULL ){
 			printf( "Window could not be created! SDL Error: %s\n", SDL_GetError() );
 			success = false;
@@ -90,9 +91,9 @@ int main(int argc, char const *argv[]){
 	}
     else{
         //Camera Initialisation
-        int PlayerXOffset(360) ;
-        // int PlayerYOffset(704) ;
-        int PlayerYOffset(824) ;
+        int PlayerXOffset(240) ;
+        int PlayerYOffset(480) ;
+        // int PlayerYOffset(824) ;
         Camera* Game_Cam = new Camera(PlayerXOffset, PlayerYOffset) ;
 
         //Map Initialisation
@@ -101,8 +102,8 @@ int main(int argc, char const *argv[]){
         Game_Map->SetPlayerCam(Game_Cam) ;
 
         //Player Initialisation
-        int PlayerWidth(6*16) ;
-        int PlayerHeight(16*16) ;
+        int PlayerWidth(60) ;
+        int PlayerHeight(160) ;
         Player Game_Player ;
         Game_Player.SetDimension(PlayerWidth,PlayerHeight) ;
         Game_Player.SetCamera(Game_Cam) ;
@@ -134,23 +135,23 @@ int main(int argc, char const *argv[]){
                     if(e.key.keysym.sym == SDLK_ESCAPE){
                         quit = true ;
                     }
-                    if(e.key.keysym.sym == SDLK_f){
-                        isFULLSCREEN = !isFULLSCREEN ;
-                        if(!(isFULLSCREEN)){
-                            SDL_SetWindowSize(gWindow , SCREEN_WIDTH/2 , SCREEN_HEIGHT/2);
-                            SDL_SetWindowFullscreen(gWindow , SDL_FALSE);
-                            Game_Player.SetFullScreen(isFULLSCREEN, PlayerWidth, PlayerHeight) ;
-                            Game_Cam->SetFullScreen(isFULLSCREEN, PlayerXOffset, PlayerYOffset) ;
-                            // Game_Map->SetFullScreen(isFULLSCREEN) ;
-                        }
-                        else{
-                            SDL_SetWindowSize(gWindow , SCREEN_WIDTH , SCREEN_HEIGHT);
-                            SDL_SetWindowFullscreen(gWindow , SDL_TRUE);
-                            Game_Player.SetFullScreen(isFULLSCREEN, PlayerWidth, PlayerHeight) ;
-                            Game_Cam->SetFullScreen(isFULLSCREEN, PlayerXOffset, PlayerYOffset) ;
-                            // Game_Map->SetFullScreen(isFULLSCREEN) ;
-                        }
-                    }
+                    // if(e.key.keysym.sym == SDLK_f){
+                    //     isFULLSCREEN = !isFULLSCREEN ;
+                    //     if(!(isFULLSCREEN)){
+                    //         SDL_SetWindowSize(gWindow , SCREEN_WIDTH/2 , SCREEN_HEIGHT/2);
+                    //         SDL_SetWindowFullscreen(gWindow , SDL_FALSE);
+                    //         Game_Player.SetFullScreen(isFULLSCREEN, PlayerWidth, PlayerHeight) ;
+                    //         Game_Cam->SetFullScreen(isFULLSCREEN, PlayerXOffset, PlayerYOffset) ;
+                    //         // Game_Map->SetFullScreen(isFULLSCREEN) ;
+                    //     }
+                    //     else{
+                    //         SDL_SetWindowSize(gWindow , SCREEN_WIDTH , SCREEN_HEIGHT);
+                    //         SDL_SetWindowFullscreen(gWindow , SDL_TRUE);
+                    //         Game_Player.SetFullScreen(isFULLSCREEN, PlayerWidth, PlayerHeight) ;
+                    //         Game_Cam->SetFullScreen(isFULLSCREEN, PlayerXOffset, PlayerYOffset) ;
+                    //         // Game_Map->SetFullScreen(isFULLSCREEN) ;
+                    //     }
+                    // }
 
                     
                 }
@@ -158,9 +159,10 @@ int main(int argc, char const *argv[]){
             }
             
 
-            Game_Player.Move(Game_Map, gRenderer) ;
+            
             Game_Player.UpdateCam() ;
             Game_Map->Update() ;
+            Game_Player.Move(Game_Map, gRenderer) ;
             // Game_Player.UpdateLight(Game_Map) ;
 
             
@@ -168,14 +170,14 @@ int main(int argc, char const *argv[]){
             Game_Map->Render(gRenderer) ;
             // Game_Player.RenderLight(gRenderer) ;
             Game_Player.Render(gRenderer) ;
-            // Game_Player.ShowHitbox(gRenderer) ;
+            Game_Player.ShowHitbox(gRenderer) ;
 
 
             //Update the surface
             SDL_RenderPresent( gRenderer );
             //Calculate and correct fps
             float avgFPS = countedFrames / ( fpsTimer.getTicks() / 1000.f );
-            cout<<avgFPS<<endl ;
+            //cout<<avgFPS<<endl ;
             ++countedFrames;
             // quit=true ;
         }

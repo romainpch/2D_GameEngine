@@ -29,8 +29,6 @@ class Tile{
 
 class World{
     private :
-        int mWidth, mHeight ;
-
         int mVisibleI ;
         int mVisibleJ ;
 

@@ -67,7 +67,7 @@ void Entity::ShowHitbox(SDL_Renderer * renderer){
 }
 
 // Player______________________________________________________________________________________________________________
-Player::Player() : mVelX(20), mVelY(40), mTaccelX(0.0), mTaccelY(0.0),isAccelX(false), mDirection(1){
+Player::Player() : mVelX(15), mVelY(30), mTaccelX(0.0), mTaccelY(0.0),isAccelX(false), mDirection(1){
     Entity() ;
     mCollisionStatus["up"] = false ;
     mCollisionStatus["down"] = false ;
@@ -220,9 +220,9 @@ void Player::Move(World* world, SDL_Renderer* renderer){
     }
 
     //The player moves along Y axis
-    mTaccelY += 0.08 ;
+    mTaccelY += 0.06 ;
     if (mTaccelY > 1){mTaccelY = 1 ;}
-    mHitboxAbs->y += int(floor(mTaccelY*mVelY));
+    mHitboxAbs->y += int(mTaccelY*mVelY);
 
 
 
