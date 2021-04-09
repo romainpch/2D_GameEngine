@@ -263,3 +263,11 @@ void Player::UpdateCam(){
     mHitboxRel->x = mHitboxAbs->x-mPlayerCam->GetScrollX() ;
     mHitboxRel->y = mHitboxAbs->y-mPlayerCam->GetScrollY() ;
 }
+
+void Player::UpdateLight(World* world){
+    mPlayerLight->Update(mHitboxAbs->x,mHitboxAbs->y, mPlayerCam, world->GetGameMap() ) ;
+}
+
+void Player::RenderLight(SDL_Renderer* renderer){
+    mPlayerLight->Render(renderer) ;
+}

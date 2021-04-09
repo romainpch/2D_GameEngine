@@ -11,9 +11,9 @@
 #include <unordered_map>
 
 #include "Camera.hpp"
-#include "Map.hpp" 
 #include "World.hpp"
 #include "Animation.hpp"
+#include "Light.hpp"
 
 using namespace std ;
 
@@ -63,15 +63,17 @@ class Player : public Entity{
         int mDirection ;
 
         Camera* mPlayerCam ;
+        Light* mPlayerLight ;
 
         map< string, bool> mCollisionStatus;
 
     public : 
         Player() ;
-        ~Player(){} ;
+        ~Player(){delete mPlayerCam ;} ;
 
         void SetCamera(Camera* cam){mPlayerCam = cam ;}
-
+        void SetLight(Light* light){mPlayerLight = light ;}
+        
         void SetFullScreen(bool isFULLSCREEN, int playerWidth, int playerHeight) ;
 
         bool CheckCollisionUp(SDL_Rect* rect) ;
@@ -86,6 +88,9 @@ class Player : public Entity{
         void Move(World* world, SDL_Renderer* renderer) ;
 
         void UpdateCam() ;
+        void UpdateLight(World* world) ;
+
+        void RenderLight(SDL_Renderer* renderer) ;
 } ;
 
 #endif

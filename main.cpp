@@ -4,12 +4,11 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 
-
 #include "./src/Timer.cpp"
 #include "./src/Entity.cpp"
-#include "./src/Map.cpp"
 #include "./src/World.cpp"
 #include "./src/Camera.cpp"
+#include "./src/Light.cpp"
 #include "./src/Animation.cpp"
 
 
@@ -47,7 +46,7 @@ bool init(){
 		}
         else{
             // Create vsynced renderer for window
-			gRenderer = SDL_CreateRenderer( gWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC );
+			gRenderer = SDL_CreateRenderer( gWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC ); //| SDL_RENDERER_PRESENTVSYNC 
 			if( gRenderer == NULL )
 			{
 				printf( "Renderer could not be created! SDL Error: %s\n", SDL_GetError() );
@@ -84,7 +83,6 @@ void close()
 	SDL_Quit();
 }
 
-
 int main(int argc, char const *argv[]){   
     //Start up SDL and create window
 	if( !init() ){
@@ -93,26 +91,15 @@ int main(int argc, char const *argv[]){
     else{
         //Camera Initialisation
         int PlayerXOffset(360) ;
-        int PlayerYOffset(704) ;
+        // int PlayerYOffset(704) ;
+        int PlayerYOffset(824) ;
         Camera* Game_Cam = new Camera(PlayerXOffset, PlayerYOffset) ;
-
 
         //Map Initialisation
         World* Game_Map = new World;
         Game_Map->LoadFromFile("./data/map.txt") ;
-
-        // BG_Object object1(0.25,300,400,700,800,131,131,131) ;
-        // BG_Object object2(0.25,750,300,500,800,131,131,131) ;
-        // BG_Object object3(0.5,1500,350,400,800,108,108,108) ;
-        // BG_Object object4(0.5,250,100,100,800,108,108,108) ;
-        // BG_Object object5(0.5,600,200,300,800,108,108,108) ;
-        // Game_Map->AddBGObject(&object1) ;
-        // Game_Map->AddBGObject(&object2) ;
-        // Game_Map->AddBGObject(&object3) ;
-        // Game_Map->AddBGObject(&object4) ;
-        // Game_Map->AddBGObject(&object5) ;
-        
         Game_Map->SetPlayerCam(Game_Cam) ;
+
         //Player Initialisation
         int PlayerWidth(6*16) ;
         int PlayerHeight(16*16) ;
@@ -120,14 +107,18 @@ int main(int argc, char const *argv[]){
         Game_Player.SetDimension(PlayerWidth,PlayerHeight) ;
         Game_Player.SetCamera(Game_Cam) ;
 
+        //Light Initialisation
+        Light* Player_Light = new Light;
+        Game_Player.SetLight(Player_Light) ;
+
     
         bool isFULLSCREEN = true ;
         bool quit = false;
 
-        SDL_Event e;
-
-
-
+        SDL_Event e ;
+        //Start counting frames per second
+        int countedFrames = 0;
+        fpsTimer.start();
         while(!quit){
             SDL_RenderClear( gRenderer );
             //Handle events on queue
@@ -166,20 +157,27 @@ int main(int argc, char const *argv[]){
                 Game_Player.HandleEvents(e) ;
             }
             
+
             Game_Player.Move(Game_Map, gRenderer) ;
             Game_Player.UpdateCam() ;
             Game_Map->Update() ;
+            // Game_Player.UpdateLight(Game_Map) ;
 
             
             // Game_Map->RenderBackGround(gRenderer) ;
             Game_Map->Render(gRenderer) ;
+            // Game_Player.RenderLight(gRenderer) ;
             Game_Player.Render(gRenderer) ;
             // Game_Player.ShowHitbox(gRenderer) ;
 
+
             //Update the surface
             SDL_RenderPresent( gRenderer );
-
-
+            //Calculate and correct fps
+            float avgFPS = countedFrames / ( fpsTimer.getTicks() / 1000.f );
+            cout<<avgFPS<<endl ;
+            ++countedFrames;
+            // quit=true ;
         }
     }
     //Free resources and close SDL
@@ -199,3 +197,15 @@ int main(int argc, char const *argv[]){
 // float avgFPS = countedFrames / ( fpsTimer.getTicks() / 1000.f );
 // cout<<avgFPS<<endl ;
 // ++countedFrames;
+
+
+        // BG_Object object1(0.25,300,400,700,800,131,131,131) ;
+        // BG_Object object2(0.25,750,300,500,800,131,131,131) ;
+        // BG_Object object3(0.5,1500,350,400,800,108,108,108) ;
+        // BG_Object object4(0.5,250,100,100,800,108,108,108) ;
+        // BG_Object object5(0.5,600,200,300,800,108,108,108) ;
+        // Game_Map->AddBGObject(&object1) ;
+        // Game_Map->AddBGObject(&object2) ;
+        // Game_Map->AddBGObject(&object3) ;
+        // Game_Map->AddBGObject(&object4) ;
+        // Game_Map->AddBGObject(&object5) ;
