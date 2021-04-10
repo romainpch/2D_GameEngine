@@ -31,6 +31,7 @@ class Entity{
         unordered_map< string, Animation* > mAnimationDatabase ; //Dictionnary of every animations
         string mAction ; //Current Animation
         int mActionFrameNumber ;
+        SDL_Renderer* mRenderer ;
 
 
     public :
@@ -47,6 +48,9 @@ class Entity{
         void SetPosAbs(int Xabs, int Yabs) ;
         void SetPosRel(int Xrel, int Yrel) ;
         void SetDimension(int Width, int Height) ;
+        void SetRenderer(SDL_Renderer* renderer){ mRenderer = renderer ;}
+
+        void LoadAnimations() ;
 
         void ChangeAction(string actionName){mAction = actionName ;}
         

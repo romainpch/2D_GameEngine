@@ -15,18 +15,18 @@ using namespace std ;
 
 class Animation{
     private :
-        vector<SDL_Surface*> mAnimationSurfaces ;
+        vector<SDL_Texture*> mAnimationTextures ;
         vector<int> mLengths ;
         string mNextAnimation ;
 
 
     public : 
-        Animation(string name, string path, vector<int> lengths, string nextAnimation) ;
+        Animation(string name, string path, vector<int> lengths, string nextAnimation, SDL_Renderer* renderer) ;
         ~Animation() ;
 
-        SDL_Surface* GetImage(int actionFrameNumber){return mAnimationSurfaces[actionFrameNumber] ;}
+        SDL_Texture* GetImage(int actionFrameNumber){return mAnimationTextures[actionFrameNumber] ;}
         string GetNext(){return mNextAnimation ;}
-        int GetSize(){return mAnimationSurfaces.size() ;}
+        int GetSize(){return mAnimationTextures.size() ;}
 } ;
 
 #endif

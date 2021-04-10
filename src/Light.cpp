@@ -2,7 +2,8 @@
 #include "SDL2/SDL2_gfxPrimitives.h"
 
 Light::Light():mPosRelX(0), mPosRelY(0){
-    mWorldCells = new sCell[21 * 15];
+    mWorldCells = new sCell[20 * 14];
+    LightSphere = IMG_Load("../data/LightSphere.png") ;
 }
 
 Light::~Light(){
@@ -14,31 +15,31 @@ Light::~Light(){
 void Light::ConvertTileMapToPolyMap(vector<vector< Tile*> > TileMap){
     //Clear all edges : 
     mVecEdges.clear() ;
-    for (int x = 0; x < 21 ; x++){
-        for (int y = 0; y < 15; y++){
-            if(x==0 or x==20 or y==0 or y==14 or TileMap[y][x] != nullptr){ //x <= 1 or y<=0 or x>=19 or y>=13 or 
-                mWorldCells[y * 21 + x].exist = true ;
+    for (int x = 0; x < 20 ; x++){
+        for (int y = 0; y < 14; y++){
+            if(TileMap[y][x] != nullptr){ //x <= 1 or y<=0 or x>=19 or y>=13 or 
+                mWorldCells[y * 20 + x].exist = true ;
             }
             else{
-                mWorldCells[y * 21 + x].exist = false ;
+                mWorldCells[y * 20 + x].exist = false ;
             }
 
             for (int j = 0; j < 4; j++){
-                mWorldCells[y * 21 + x].edge_exist[j] = false;
-                mWorldCells[y * 21 + x].edge_id[j] = 0;
+                mWorldCells[y * 20 + x].edge_exist[j] = false;
+                mWorldCells[y * 20 + x].edge_id[j] = 0;
 			}
         }
     }
 
-    for (int x = 1; x < 20; x++)
-        for (int y = 1; y < 14; y++)
+    for (int x = 1; x < 19; x++)
+        for (int y = 1; y < 13; y++)
         {
             // Create some convenient indices
-            int i = y * 21 + x;			// This
-            int n = (y - 1) * 21 + x;		// Northern Neighbour
-            int s = (y + 1) * 21 + x;		// Southern Neighbour
-            int w = y * 21 + (x - 1);	// Western Neighbour
-            int e = y * 21 + (x + 1);	// Eastern Neighbour
+            int i = y * 20 + x;			// This
+            int n = (y - 1) * 20 + x;		// Northern Neighbour
+            int s = (y + 1) * 20 + x;		// Southern Neighbour
+            int w = y * 20 + (x - 1);	// Western Neighbour
+            int e = y * 20 + (x + 1);	// Eastern Neighbour
 
             // If this cell exists, check if it needs edges
             if (mWorldCells[i].exist)
@@ -51,7 +52,7 @@ void Light::ConvertTileMapToPolyMap(vector<vector< Tile*> > TileMap){
                     if (mWorldCells[n].edge_exist[WEST])
                     {
                         // Northern neighbour has a western edge, so grow it downwards
-                        mVecEdges[mWorldCells[n].edge_id[WEST]].ey += 120;
+                        mVecEdges[mWorldCells[n].edge_id[WEST]].ey += 80;
                         mWorldCells[i].edge_id[WEST] = mWorldCells[n].edge_id[WEST];
                         mWorldCells[i].edge_exist[WEST] = true;
                     }
@@ -60,7 +61,7 @@ void Light::ConvertTileMapToPolyMap(vector<vector< Tile*> > TileMap){
                         // Northern neighbour does not have one, so create one
                         sEdge edge;
                         edge.sx = TileMap[y][x]->mRectRel->x  ; edge.sy = TileMap[y][x]->mRectRel->y ;
-                        edge.ex = edge.sx; edge.ey = edge.sy + 120;
+                        edge.ex = edge.sx; edge.ey = edge.sy + 80;
 
                         // Add edge to Polygon Pool
                         int edge_id = mVecEdges.size();
@@ -80,7 +81,7 @@ void Light::ConvertTileMapToPolyMap(vector<vector< Tile*> > TileMap){
                     if (mWorldCells[n].edge_exist[EAST])
                     {
                         // Northern neighbour has one, so grow it downwards
-                        mVecEdges[mWorldCells[n].edge_id[EAST]].ey += 120;
+                        mVecEdges[mWorldCells[n].edge_id[EAST]].ey += 80;
                         mWorldCells[i].edge_id[EAST] = mWorldCells[n].edge_id[EAST];
                         mWorldCells[i].edge_exist[EAST] = true;
                     }
@@ -88,8 +89,8 @@ void Light::ConvertTileMapToPolyMap(vector<vector< Tile*> > TileMap){
                     {
                         // Northern neighbour does not have one, so create one
                         sEdge edge;
-                        edge.sx = TileMap[y][x]->mRectRel->x + 120  ; edge.sy = TileMap[y][x]->mRectRel->y ;
-                        edge.ex = edge.sx; edge.ey = edge.sy + 120;
+                        edge.sx = TileMap[y][x]->mRectRel->x + 80  ; edge.sy = TileMap[y][x]->mRectRel->y ;
+                        edge.ex = edge.sx; edge.ey = edge.sy + 80;
 
                         // Add edge to Polygon Pool
                         int edge_id = mVecEdges.size();
@@ -109,7 +110,7 @@ void Light::ConvertTileMapToPolyMap(vector<vector< Tile*> > TileMap){
                     if (mWorldCells[w].edge_exist[NORTH])
                     {
                         // Western neighbour has one, so grow it eastwards
-                        mVecEdges[mWorldCells[w].edge_id[NORTH]].ex += 120;
+                        mVecEdges[mWorldCells[w].edge_id[NORTH]].ex += 80;
                         mWorldCells[i].edge_id[NORTH] = mWorldCells[w].edge_id[NORTH];
                         mWorldCells[i].edge_exist[NORTH] = true;
                     }
@@ -118,7 +119,7 @@ void Light::ConvertTileMapToPolyMap(vector<vector< Tile*> > TileMap){
                         // Western neighbour does not have one, so create one
                         sEdge edge;
                         edge.sx = TileMap[y][x]->mRectRel->x ; edge.sy = TileMap[y][x]->mRectRel->y ;
-                        edge.ex = edge.sx + 120; edge.ey = edge.sy;
+                        edge.ex = edge.sx + 80; edge.ey = edge.sy;
 
                         // Add edge to Polygon Pool
                         int edge_id = mVecEdges.size();
@@ -138,7 +139,7 @@ void Light::ConvertTileMapToPolyMap(vector<vector< Tile*> > TileMap){
                     if (mWorldCells[w].edge_exist[SOUTH])
                     {
                         // Western neighbour has one, so grow it eastwards
-                        mVecEdges[mWorldCells[w].edge_id[SOUTH]].ex += 120;
+                        mVecEdges[mWorldCells[w].edge_id[SOUTH]].ex += 80;
                         mWorldCells[i].edge_id[SOUTH] = mWorldCells[w].edge_id[SOUTH];
                         mWorldCells[i].edge_exist[SOUTH] = true;
                     }
@@ -146,8 +147,8 @@ void Light::ConvertTileMapToPolyMap(vector<vector< Tile*> > TileMap){
                     {
                         // Western neighbour does not have one, so I need to create one
                         sEdge edge;
-                        edge.sx = TileMap[y][x]->mRectRel->x ; edge.sy = TileMap[y][x]->mRectRel->y + 120 ;
-                        edge.ex = edge.sx + 120; edge.ey = edge.sy;
+                        edge.sx = TileMap[y][x]->mRectRel->x ; edge.sy = TileMap[y][x]->mRectRel->y + 80 ;
+                        edge.ex = edge.sx + 80; edge.ey = edge.sy;
 
                         // Add edge to Polygon Pool
                         int edge_id = mVecEdges.size();
@@ -351,20 +352,25 @@ void Light::DrawTriangle(SDL_Renderer* renderer, int x1, int y1, int x2, int y2,
 }
 
 void Light::Update(int posXabs, int posYabs, Camera* playerCam, vector<vector< Tile*> > TileMap){
-    mPosRelX =  posXabs - playerCam->GetScrollX() + 80 ;
-    mPosRelY = posYabs - playerCam->GetScrollY() + 128 ;
+    mPosRelX =  posXabs - playerCam->GetScrollX() + 40 ;
+    mPosRelY = posYabs - playerCam->GetScrollY() + 80 ;
 
     ConvertTileMapToPolyMap(TileMap) ;
     CalculateVisibilityPolygon(mPosRelX, mPosRelY, 1.0f) ;
 }
 
+void Light::IntesectTriangleWithCircle(SDL_Renderer* renderer, int x1, int y1, int x2, int y2, int x3, int y3, int radius){
+    
+}
+
 void Light::Render(SDL_Renderer* renderer){
     // Draw each triangle in fan
-    cout<<mVecVisibilityPolygonPoints.size()<<" Triangles"<<endl ;
+    // cout<<mVecVisibilityPolygonPoints.size()<<" Triangles"<<endl ;
     for (int i = 0; i < mVecVisibilityPolygonPoints.size() - 1; i++){
         FillTriangle(renderer, mPosRelX, mPosRelY, get<1>(mVecVisibilityPolygonPoints[i]), get<2>(mVecVisibilityPolygonPoints[i]), get<1>(mVecVisibilityPolygonPoints[i + 1]), get<2>(mVecVisibilityPolygonPoints[i + 1]), 0xFF, 0xFF, 0, 0xFF) ;
     }
 
     // // Fan will have one open edge, so draw last point of fan to first
     FillTriangle(renderer, mPosRelX, mPosRelY, get<1>(mVecVisibilityPolygonPoints[mVecVisibilityPolygonPoints.size() - 1]), get<2>(mVecVisibilityPolygonPoints[mVecVisibilityPolygonPoints.size() - 1]), get<1>(mVecVisibilityPolygonPoints[0]), get<2>(mVecVisibilityPolygonPoints[0]), 0xFF, 0xFF, 0, 0xFF) ; 
+
 }

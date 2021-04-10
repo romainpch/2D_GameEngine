@@ -178,8 +178,8 @@ void World::Render(SDL_Renderer* renderer){
                 SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0xFF) ;
                 SDL_RenderFillRect(renderer, mVisibleTiles[i][j]->mRectRel);
 
-                SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0, 0xFF) ;
-                SDL_RenderDrawRect(renderer, mVisibleTiles[i][j]->mRectRel);
+                // SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0, 0xFF) ;
+                // SDL_RenderDrawRect(renderer, mVisibleTiles[i][j]->mRectRel);
                 SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF) ;
             }
         }

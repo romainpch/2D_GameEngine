@@ -47,7 +47,7 @@ bool init(){
 		}
         else{
             // Create vsynced renderer for window
-			gRenderer = SDL_CreateRenderer( gWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC ); //| SDL_RENDERER_PRESENTVSYNC 
+			gRenderer = SDL_CreateRenderer( gWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC ); // | SDL_RENDERER_PRESENTVSYNC
 			if( gRenderer == NULL )
 			{
 				printf( "Renderer could not be created! SDL Error: %s\n", SDL_GetError() );
@@ -104,13 +104,15 @@ int main(int argc, char const *argv[]){
         //Player Initialisation
         int PlayerWidth(60) ;
         int PlayerHeight(160) ;
-        Player Game_Player ;
-        Game_Player.SetDimension(PlayerWidth,PlayerHeight) ;
-        Game_Player.SetCamera(Game_Cam) ;
+        Player* Game_Player = new Player ;
+        Game_Player->SetDimension(PlayerWidth,PlayerHeight) ;
+        Game_Player->SetCamera(Game_Cam) ;
+        Game_Player->SetRenderer(gRenderer) ;
+        Game_Player->LoadAnimations() ;
 
         //Light Initialisation
         Light* Player_Light = new Light;
-        Game_Player.SetLight(Player_Light) ;
+        Game_Player->SetLight(Player_Light) ;
 
     
         bool isFULLSCREEN = true ;
@@ -155,29 +157,29 @@ int main(int argc, char const *argv[]){
 
                     
                 }
-                Game_Player.HandleEvents(e) ;
+                Game_Player->HandleEvents(e) ;
             }
             
 
             
-            Game_Player.UpdateCam() ;
+            Game_Player->UpdateCam() ;
             Game_Map->Update() ;
-            Game_Player.Move(Game_Map, gRenderer) ;
-            // Game_Player.UpdateLight(Game_Map) ;
+            Game_Player->Move(Game_Map, gRenderer) ;
+            Game_Player->UpdateLight(Game_Map) ;
 
             
             // Game_Map->RenderBackGround(gRenderer) ;
             Game_Map->Render(gRenderer) ;
-            // Game_Player.RenderLight(gRenderer) ;
-            Game_Player.Render(gRenderer) ;
-            Game_Player.ShowHitbox(gRenderer) ;
+            Game_Player->RenderLight(gRenderer) ;
+            Game_Player->Render(gRenderer) ;
+            // Game_Player.ShowHitbox(gRenderer) ;
 
 
             //Update the surface
             SDL_RenderPresent( gRenderer );
             //Calculate and correct fps
             float avgFPS = countedFrames / ( fpsTimer.getTicks() / 1000.f );
-            //cout<<avgFPS<<endl ;
+            // cout<<avgFPS<<endl ;
             ++countedFrames;
             // quit=true ;
         }

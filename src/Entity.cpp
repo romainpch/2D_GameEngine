@@ -14,15 +14,6 @@ Entity::Entity() : mFlip(SDL_FLIP_NONE), mAction("idle"), mActionFrameNumber(0) 
     mHitboxRel->y = 0 ;
     mHitboxRel->w = 0 ;
     mHitboxRel->h = 0 ;
-
-    Animation* idle = new Animation("idle", "./data/animations/player/idle/", vector<int>(2,30), "idle") ;
-    mAnimationDatabase["idle"] = idle ;
-    Animation* run = new Animation("run", "./data/animations/player/run/", vector<int>(9,4), "run") ;
-    mAnimationDatabase["run"] = run ;
-    Animation* jump_up = new Animation("jump_up", "./data/animations/player/jump_up/", vector<int>(4,3), "jump_up") ;
-    mAnimationDatabase["jump_up"] = jump_up ;
-    Animation* jump_down = new Animation("jump_down", "./data/animations/player/jump_down/", vector<int>(4,3), "jump_down") ;
-    mAnimationDatabase["jump_down"] = jump_down ;
 }
 
 Entity::~Entity(){
@@ -47,16 +38,24 @@ void Entity::SetDimension(int Width, int Height){
     mHitboxRel->h = Height ;
 }
 
+void Entity::LoadAnimations(){
+    Animation* idle = new Animation("idle", "./data/animations/player/idle/", vector<int>(2,30), "idle", mRenderer) ;
+    mAnimationDatabase["idle"] = idle ;
+    Animation* run = new Animation("run", "./data/animations/player/run/", vector<int>(9,4), "run", mRenderer) ;
+    mAnimationDatabase["run"] = run ;
+    Animation* jump_up = new Animation("jump_up", "./data/animations/player/jump_up/", vector<int>(4,3), "jump_up", mRenderer) ;
+    mAnimationDatabase["jump_up"] = jump_up ;
+    Animation* jump_down = new Animation("jump_down", "./data/animations/player/jump_down/", vector<int>(4,3), "jump_down", mRenderer) ;
+    mAnimationDatabase["jump_down"] = jump_down ;
+}
+
 void Entity::Render(SDL_Renderer * renderer){
-    SDL_Surface* frameSurface = mAnimationDatabase[mAction]->GetImage(mActionFrameNumber) ;
+    SDL_Texture* frameTexture = mAnimationDatabase[mAction]->GetImage(mActionFrameNumber) ;
     SDL_Rect frameRect ;
     frameRect.x = mHitboxRel->x - (mHitboxRel->h-mHitboxRel->w)/2 ;
     frameRect.y = mHitboxRel->y ;
     frameRect.w = mHitboxRel->h ;
     frameRect.h = mHitboxRel->h ;
-
-    SDL_SetColorKey( frameSurface, SDL_TRUE, SDL_MapRGBA( frameSurface->format, 0xFF, 0xFF, 0xFF, 0xFF) );
-    SDL_Texture* frameTexture = SDL_CreateTextureFromSurface(renderer, frameSurface);
     SDL_RenderCopyEx(renderer, frameTexture,  NULL, &frameRect, 0, NULL, mFlip);  
 }
 
