@@ -65,6 +65,19 @@ void World::LoadFromFile(string path){
                     mVisibleTiles[i][j] = tile ;
                 }
             }
+            else if(int(c-'0')==2){
+                Tile* tile  = new Tile;
+                tile->mRectAbs->x = 80*(j-2); 
+                tile->mRectAbs->y = 80*(i-2);
+                tile->mRectAbs->h = 40;
+                tile->mRectRel->x = 80*(j-2); 
+                tile->mRectRel->y = 80*(i-2);
+                tile->mRectRel->h = 40;
+                layer.push_back(tile) ;
+                if(i < 14 and j < 20){
+                    mVisibleTiles[i][j] = tile ;
+                }
+            }
             else{
                 layer.push_back(nullptr) ;
             }

@@ -66,6 +66,8 @@ class Player : public Entity{
         bool isAccelX ;
         int mDirection ;
 
+        bool isClimbing ;
+
         Camera* mPlayerCam ;
         Light* mPlayerLight ;
 
@@ -80,13 +82,10 @@ class Player : public Entity{
         
         void SetFullScreen(bool isFULLSCREEN, int playerWidth, int playerHeight) ;
 
-        bool CheckCollisionUp(SDL_Rect* rect) ;
-        bool CheckCollisionDown(SDL_Rect* rect) ;
-        bool CheckCollisionLeft(SDL_Rect* rect) ;
-        bool CheckCollisionRight(SDL_Rect* rect) ;
-
         bool CheckCollisions(SDL_Rect* rect) ;
-        vector<SDL_Rect*> GetCollisionsList(World* world, SDL_Renderer* renderer) ;
+        vector<Tile*> GetCollisionsList(World* world, SDL_Renderer* renderer) ;
+
+        bool canClimb(Tile* tile, vector<vector<Tile*> > GameMap, string direction) ;
 
         void HandleEvents(SDL_Event e) ;
         void Move(World* world, SDL_Renderer* renderer) ;
@@ -96,5 +95,8 @@ class Player : public Entity{
 
         void RenderLight(SDL_Renderer* renderer) ;
 } ;
+
+
+vector<int> FindijForTile(vector<vector<Tile*> > GameMap, Tile* tile) ;
 
 #endif

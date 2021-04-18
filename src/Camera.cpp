@@ -1,6 +1,6 @@
 #include "Camera.hpp"
 
-Camera::Camera(int Xoffset, int Yoffset):mScrollX(0), mScrollY(0), mTrueScrollX(-Xoffset), mTrueScrollY(-Yoffset), mCamSpeedX(10), mCamSpeedY(25), mXoffset(Xoffset) , mYoffset(Yoffset) {}
+Camera::Camera(int Xoffset, int Yoffset):mScrollX(0), mScrollY(0), mTrueScrollX(-Xoffset), mTrueScrollY(-Yoffset), mCamSpeedX(10), mCamSpeedY(50), mXoffset(Xoffset) , mYoffset(Yoffset) {}
 
 void Camera::SetFullScreen(bool isFullScreen, int XoffsetFULLSCREEN, int YoffsetFULLSCREEN){
     if(isFullScreen){

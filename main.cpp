@@ -92,7 +92,8 @@ int main(int argc, char const *argv[]){
     else{
         //Camera Initialisation
         int PlayerXOffset(240) ;
-        int PlayerYOffset(480) ;
+        // int PlayerYOffset(480) ;
+        int PlayerYOffset(320) ;
         // int PlayerYOffset(824) ;
         Camera* Game_Cam = new Camera(PlayerXOffset, PlayerYOffset) ;
 
@@ -101,7 +102,7 @@ int main(int argc, char const *argv[]){
         Game_Map->LoadFromFile("./data/map.txt") ;
         Game_Map->SetPlayerCam(Game_Cam) ;
 
-        //Player Initialisation
+        // Player Initialisation
         int PlayerWidth(60) ;
         int PlayerHeight(160) ;
         Player* Game_Player = new Player ;
@@ -111,7 +112,7 @@ int main(int argc, char const *argv[]){
         Game_Player->LoadAnimations() ;
 
         //Light Initialisation
-        Light* Player_Light = new Light;
+        Light* Player_Light = new Light(gRenderer);
         Game_Player->SetLight(Player_Light) ;
 
     
@@ -169,10 +170,11 @@ int main(int argc, char const *argv[]){
 
             
             // Game_Map->RenderBackGround(gRenderer) ;
+            
+            // Game_Player->RenderLight(gRenderer) ;
             Game_Map->Render(gRenderer) ;
-            Game_Player->RenderLight(gRenderer) ;
             Game_Player->Render(gRenderer) ;
-            // Game_Player.ShowHitbox(gRenderer) ;
+            Game_Player->ShowHitbox(gRenderer) ;
 
 
             //Update the surface

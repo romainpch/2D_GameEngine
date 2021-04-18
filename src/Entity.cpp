@@ -43,10 +43,12 @@ void Entity::LoadAnimations(){
     mAnimationDatabase["idle"] = idle ;
     Animation* run = new Animation("run", "./data/animations/player/run/", vector<int>(9,4), "run", mRenderer) ;
     mAnimationDatabase["run"] = run ;
-    Animation* jump_up = new Animation("jump_up", "./data/animations/player/jump_up/", vector<int>(4,3), "jump_up", mRenderer) ;
+    Animation* jump_up = new Animation("jump_up", "./data/animations/player/jump_up/", vector<int>(4,4), "jump_up", mRenderer) ;
     mAnimationDatabase["jump_up"] = jump_up ;
-    Animation* jump_down = new Animation("jump_down", "./data/animations/player/jump_down/", vector<int>(4,3), "jump_down", mRenderer) ;
+    Animation* jump_down = new Animation("jump_down", "./data/animations/player/jump_down/", vector<int>(4,4), "jump_down", mRenderer) ;
     mAnimationDatabase["jump_down"] = jump_down ;
+    Animation* climb = new Animation("climb", "./data/animations/player/climb/", vector<int>(2,60), "climb", mRenderer) ;
+    mAnimationDatabase["climb"] = climb ;
 }
 
 void Entity::Render(SDL_Renderer * renderer){
@@ -66,7 +68,7 @@ void Entity::ShowHitbox(SDL_Renderer * renderer){
 }
 
 // Player______________________________________________________________________________________________________________
-Player::Player() : mVelX(15), mVelY(30), mTaccelX(0.0), mTaccelY(0.0),isAccelX(false), mDirection(1){
+Player::Player() : mVelX(15), mVelY(30), mTaccelX(0.0), mTaccelY(0.0),isAccelX(false), mDirection(1), isClimbing(false){
     Entity() ;
     mCollisionStatus["up"] = false ;
     mCollisionStatus["down"] = false ;
@@ -161,15 +163,15 @@ bool Player::CheckCollisions(SDL_Rect* rect){
     return true;
 }
 
-vector<SDL_Rect*> Player::GetCollisionsList(World* world, SDL_Renderer* renderer){
-    vector<SDL_Rect*> CollisionsList ;
+vector<Tile*> Player::GetCollisionsList(World* world, SDL_Renderer* renderer){
+    vector<Tile*> CollisionsList ;
     vector<vector<Tile*> > GameMap = world->GetGameMap() ;
 
     for(int i=0 ; i<GameMap.size(); i++){
         for(int j=0 ; j<GameMap[i].size() ; j++){
             if(GameMap[i][j] != nullptr){
                 if(this->CheckCollisions(GameMap[i][j]->mRectAbs)){
-                    CollisionsList.push_back(GameMap[i][j]->mRectAbs) ;
+                    CollisionsList.push_back(GameMap[i][j]) ;
                 }
             }
         }
@@ -177,14 +179,23 @@ vector<SDL_Rect*> Player::GetCollisionsList(World* world, SDL_Renderer* renderer
     return CollisionsList ;
 }
 
+bool Player::canClimb(Tile* tile, vector<vector<Tile*> > GameMap, string direction){
+    vector<int> ij = FindijForTile(GameMap, tile) ;
+    if(direction=="right"){
+        return mHitboxAbs->y + mPlayerCam->GetYoffset()<tile->mRectAbs->y and mHitboxAbs->y + mPlayerCam->GetYoffset() >= tile->mRectAbs->y -15 and GameMap[ij[0]-1][ij[1]-1] == nullptr and GameMap[ij[0]-2][ij[1]-1] == nullptr and GameMap[ij[0]-1][ij[1]] == nullptr and GameMap[ij[0]-2][ij[1]] == nullptr ;
+    }
+    else if(direction=="left"){
+        return mHitboxAbs->y + mPlayerCam->GetYoffset()<tile->mRectAbs->y and mHitboxAbs->y + mPlayerCam->GetYoffset() >= tile->mRectAbs->y -15 and GameMap[ij[0]-1][ij[1]+1] == nullptr and GameMap[ij[0]-2][ij[1]+1] == nullptr and GameMap[ij[0]-1][ij[1]] == nullptr and GameMap[ij[0]-2][ij[1]] == nullptr ;
+    }
+    else{ return false ;}
+}
 
 void Player::Move(World* world, SDL_Renderer* renderer){
     mCollisionStatus["up"] = false ;
     mCollisionStatus["down"] = false ;
     mCollisionStatus["left"] = false ;
     mCollisionStatus["right"] = false ;
-
-    vector<SDL_Rect*> CollisionsList ;
+    isClimbing = false ;
     
     //The player moves along X axis (acceleration taken into account)
     if(isAccelX){mTaccelX = min(1.5*double(mVelX)*mTaccelX+1, double(mVelX))/double(mVelX) ;}
@@ -192,19 +203,28 @@ void Player::Move(World* world, SDL_Renderer* renderer){
     mHitboxAbs->x += mDirection*int(mTaccelX*mVelX);
     
     // Handle Left Right Collisions 
-    CollisionsList = GetCollisionsList(world, renderer) ;
+    vector<vector<Tile*> > GameMap = world->GetGameMap() ;
+    vector<Tile*> CollisionsList = GetCollisionsList(world, renderer) ;
+
     for(int i=0 ; i< CollisionsList.size() ; i++){
-        SDL_Rect* tile = CollisionsList[i] ;
-        
+        Tile* tile = CollisionsList[i] ;
         // Handle Left Right Collisions
         switch (mDirection){
         case 1:
-            mHitboxAbs->x = tile->x - mHitboxAbs->w - mPlayerCam->GetXoffset();
+            if(canClimb(tile,GameMap,"right") and mTaccelY!=-1){
+                mTaccelY = -0.06 ;
+                isClimbing=true ;
+            }
+            mHitboxAbs->x = tile->mRectAbs->x - mHitboxAbs->w - mPlayerCam->GetXoffset();
             mTaccelX = 0 ;
             mCollisionStatus["right"] = true ;
             break;
         case -1:
-            mHitboxAbs->x = tile->x + tile->w - mPlayerCam->GetXoffset();
+            if(canClimb(tile,GameMap,"left") and mTaccelY!=-1){
+                mTaccelY = -0.06 ;
+                isClimbing=true ;
+            }
+            mHitboxAbs->x = tile->mRectAbs->x + tile->mRectAbs->w - mPlayerCam->GetXoffset();
             mTaccelX = 0 ;
             mCollisionStatus["left"] = true ;
             break;
@@ -218,17 +238,19 @@ void Player::Move(World* world, SDL_Renderer* renderer){
         mAction = "run" ;
     }
 
+    if(isClimbing){
+        mAction = "climb" ;
+    }
+
     //The player moves along Y axis
     mTaccelY += 0.06 ;
     if (mTaccelY > 1){mTaccelY = 1 ;}
     mHitboxAbs->y += int(mTaccelY*mVelY);
 
-
-
     // Handle Up Down Collisions
     CollisionsList = GetCollisionsList(world, renderer) ;
     for(int i=0 ; i< CollisionsList.size() ; i++){
-        SDL_Rect* tile = CollisionsList[i] ;
+        SDL_Rect* tile = CollisionsList[i]->mRectAbs ;
         if(mTaccelY > 0){
             mTaccelY = 0 ;
             mHitboxAbs->y = tile->y - mHitboxAbs->h - mPlayerCam->GetYoffset() ;
@@ -269,4 +291,18 @@ void Player::UpdateLight(World* world){
 
 void Player::RenderLight(SDL_Renderer* renderer){
     mPlayerLight->Render(renderer) ;
+}
+
+
+vector<int> FindijForTile(vector<vector<Tile*> > GameMap, Tile* tile){
+    vector<int> res(2, 0);
+    for(int i=0; i<GameMap.size() ; i++ ){
+        for(int j=0 ; j<GameMap[i].size() ; j++){
+            if(GameMap[i][j] == tile){
+                res[0] = i ;
+                res[1] = j ;
+            }
+        }
+    }
+    return res ;
 }

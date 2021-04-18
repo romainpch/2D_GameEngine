@@ -1,13 +1,20 @@
 #include "Light.hpp"
 #include "SDL2/SDL2_gfxPrimitives.h"
+#include "./SDL-br_triangles/include/SDL_render.h"
 
-Light::Light():mPosRelX(0), mPosRelY(0){
+Light::Light(SDL_Renderer* renderer):mPosRelX(0), mPosRelY(0){
     mWorldCells = new sCell[20 * 14];
-    LightSphere = IMG_Load("../data/LightSphere.png") ;
+    LightSphere = IMG_LoadTexture(renderer, "./data/LightSphereT.png") ;
+    LightRect = new SDL_Rect ;
+    LightRect->x = 0 ;
+    LightRect->y = 0 ;
+    LightRect->w = 2560 ;
+    LightRect->h = 1600 ;
 }
 
 Light::~Light(){
     delete mWorldCells ;
+    delete LightRect ;
 }
 
 
@@ -30,9 +37,10 @@ void Light::ConvertTileMapToPolyMap(vector<vector< Tile*> > TileMap){
 			}
         }
     }
-
-    for (int x = 1; x < 19; x++)
-        for (int y = 1; y < 13; y++)
+    // for (int x = 1; x < 19; x++)
+    //     for (int y = 1; y < 13; y++)
+    for (int x = 0; x < 20; x++)
+        for (int y = 0; y < 14; y++)
         {
             // Create some convenient indices
             int i = y * 20 + x;			// This
@@ -356,21 +364,44 @@ void Light::Update(int posXabs, int posYabs, Camera* playerCam, vector<vector< T
     mPosRelY = posYabs - playerCam->GetScrollY() + 80 ;
 
     ConvertTileMapToPolyMap(TileMap) ;
-    CalculateVisibilityPolygon(mPosRelX, mPosRelY, 1.0f) ;
+    CalculateVisibilityPolygon(mPosRelX, mPosRelY, 1000.0f) ;
 }
 
-void Light::IntesectTriangleWithCircle(SDL_Renderer* renderer, int x1, int y1, int x2, int y2, int x3, int y3, int radius){
-    
+SDL_Texture* Light::CreateMaskTriangle(SDL_Texture* texture, int x1, int y1, int x2, int y2, int x3, int y3){
+    SDL_Texture* a(nullptr) ;
+    return a ;
 }
 
 void Light::Render(SDL_Renderer* renderer){
+    SDL_Rect ScreenRect ;
+    ScreenRect.x = 0 ;
+    ScreenRect.y = 0 ;
+    ScreenRect.w = 1280 ;
+    ScreenRect.h = 800 ;
+    
+    SDL_SetRenderDrawColor(renderer, 10, 10, 10, 0xFF) ;
+    SDL_RenderFillRect(renderer, &ScreenRect) ;
+    SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF) ;
     // Draw each triangle in fan
     // cout<<mVecVisibilityPolygonPoints.size()<<" Triangles"<<endl ;
     for (int i = 0; i < mVecVisibilityPolygonPoints.size() - 1; i++){
-        FillTriangle(renderer, mPosRelX, mPosRelY, get<1>(mVecVisibilityPolygonPoints[i]), get<2>(mVecVisibilityPolygonPoints[i]), get<1>(mVecVisibilityPolygonPoints[i + 1]), get<2>(mVecVisibilityPolygonPoints[i + 1]), 0xFF, 0xFF, 0, 0xFF) ;
+        FillTriangle(renderer, mPosRelX, mPosRelY, get<1>(mVecVisibilityPolygonPoints[i]), get<2>(mVecVisibilityPolygonPoints[i]), get<1>(mVecVisibilityPolygonPoints[i + 1]), get<2>(mVecVisibilityPolygonPoints[i + 1]), 0xFF, 230, 139, 0xFF) ;
     }
 
     // // Fan will have one open edge, so draw last point of fan to first
-    FillTriangle(renderer, mPosRelX, mPosRelY, get<1>(mVecVisibilityPolygonPoints[mVecVisibilityPolygonPoints.size() - 1]), get<2>(mVecVisibilityPolygonPoints[mVecVisibilityPolygonPoints.size() - 1]), get<1>(mVecVisibilityPolygonPoints[0]), get<2>(mVecVisibilityPolygonPoints[0]), 0xFF, 0xFF, 0, 0xFF) ; 
+    FillTriangle(renderer, mPosRelX, mPosRelY, get<1>(mVecVisibilityPolygonPoints[mVecVisibilityPolygonPoints.size() - 1]), get<2>(mVecVisibilityPolygonPoints[mVecVisibilityPolygonPoints.size() - 1]), get<1>(mVecVisibilityPolygonPoints[0]), get<2>(mVecVisibilityPolygonPoints[0]), 0xFF, 230, 139, 0xFF) ; 
+
+    // Adding LightSphere effect
+    LightRect->x = mPosRelX - 1280 ;
+    LightRect->y = mPosRelY - 800;
+
+    SDL_SetTextureBlendMode(LightSphere, SDL_BLENDMODE_BLEND) ;
+
+    // cout<<"mPosrel"<<mPosRelX<<" : "<<mPosRelY<<endl ;
+
+    SDL_RenderCopy(renderer, LightSphere, NULL, LightRect); 
+    // SDL_RenderCopy()
+
+
 
 }
