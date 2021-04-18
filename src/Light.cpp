@@ -1,6 +1,6 @@
 #include "Light.hpp"
 #include "SDL2/SDL2_gfxPrimitives.h"
-#include "./SDL-br_triangles/include/SDL_render.h"
+// #include "./SDL-br_triangles/include/SDL_render.h"
 
 Light::Light(SDL_Renderer* renderer):mPosRelX(0), mPosRelY(0){
     mWorldCells = new sCell[20 * 14];

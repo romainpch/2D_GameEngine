@@ -250,14 +250,14 @@ void Player::Move(World* world, SDL_Renderer* renderer){
     // Handle Up Down Collisions
     CollisionsList = GetCollisionsList(world, renderer) ;
     for(int i=0 ; i< CollisionsList.size() ; i++){
-        SDL_Rect* tile = CollisionsList[i]->mRectAbs ;
+        Tile* tile = CollisionsList[i] ;
         if(mTaccelY > 0){
             mTaccelY = 0 ;
-            mHitboxAbs->y = tile->y - mHitboxAbs->h - mPlayerCam->GetYoffset() ;
+            mHitboxAbs->y = tile->mRectAbs->y - mHitboxAbs->h - mPlayerCam->GetYoffset() ;
             mCollisionStatus["down"] = true ;
         }
         else if(mTaccelY < 0){
-            mHitboxAbs->y = tile->y - tile->h + mHitboxAbs->h - mPlayerCam->GetYoffset();
+            mHitboxAbs->y = tile->mRectAbs->y + tile->mRectAbs->h - mPlayerCam->GetYoffset();
             mTaccelY = 0 ;
             mCollisionStatus["up"] = true ;
         }

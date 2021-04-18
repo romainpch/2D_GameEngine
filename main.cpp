@@ -171,10 +171,10 @@ int main(int argc, char const *argv[]){
             
             // Game_Map->RenderBackGround(gRenderer) ;
             
-            // Game_Player->RenderLight(gRenderer) ;
+            //Game_Player->RenderLight(gRenderer) ;
             Game_Map->Render(gRenderer) ;
             Game_Player->Render(gRenderer) ;
-            Game_Player->ShowHitbox(gRenderer) ;
+            //Game_Player->ShowHitbox(gRenderer) ;
 
 
             //Update the surface
