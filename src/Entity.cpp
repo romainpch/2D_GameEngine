@@ -64,11 +64,10 @@ void Entity::Render(SDL_Renderer * renderer){
 void Entity::ShowHitbox(SDL_Renderer * renderer){
     SDL_SetRenderDrawColor(renderer, 0, 0xFF, 0, 0xFF) ;
     SDL_RenderDrawRect( renderer, mHitboxRel );
-    SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF) ;
 }
 
 // Player______________________________________________________________________________________________________________
-Player::Player() : mVelX(15), mVelY(30), mTaccelX(0.0), mTaccelY(0.0),isAccelX(false), mDirection(1), isClimbing(false){
+Player::Player() : mVelX(12), mVelY(20), mTaccelX(0.0), mTaccelY(0.0),isAccelX(false), mDirection(1), mDirectionOffset(0), isClimbing(false){
     Entity() ;
     mCollisionStatus["up"] = false ;
     mCollisionStatus["down"] = false ;
@@ -111,9 +110,10 @@ void Player::HandleEvents(SDL_Event e){
                     isAccelX = true ;
                     break;
                 case SDLK_SPACE :
-                    if(mTaccelY==0){
-                        mTaccelY = -1 ;
-                    }
+                    // if(mTaccelY==0){
+                    //     mTaccelY = -1 ;
+                    // }
+                    mTaccelY = -1 ;
                     break ;
                 default:
                     break;
@@ -212,7 +212,7 @@ void Player::Move(World* world, SDL_Renderer* renderer){
         switch (mDirection){
         case 1:
             if(canClimb(tile,GameMap,"right") and mTaccelY!=-1){
-                mTaccelY = -0.06 ;
+                mTaccelY = -0.1 ;
                 isClimbing=true ;
             }
             mHitboxAbs->x = tile->mRectAbs->x - mHitboxAbs->w - mPlayerCam->GetXoffset();
@@ -221,7 +221,7 @@ void Player::Move(World* world, SDL_Renderer* renderer){
             break;
         case -1:
             if(canClimb(tile,GameMap,"left") and mTaccelY!=-1){
-                mTaccelY = -0.06 ;
+                mTaccelY = -0.1 ;
                 isClimbing=true ;
             }
             mHitboxAbs->x = tile->mRectAbs->x + tile->mRectAbs->w - mPlayerCam->GetXoffset();
@@ -243,7 +243,7 @@ void Player::Move(World* world, SDL_Renderer* renderer){
     }
 
     //The player moves along Y axis
-    mTaccelY += 0.06 ;
+    mTaccelY += 0.10 ;
     if (mTaccelY > 1){mTaccelY = 1 ;}
     mHitboxAbs->y += int(mTaccelY*mVelY);
 
@@ -280,7 +280,16 @@ void Player::Move(World* world, SDL_Renderer* renderer){
 }
 
 void Player::UpdateCam(){
-    mPlayerCam->Update(mHitboxAbs->x,mHitboxAbs->y) ; 
+    if(mDirection == -1){
+
+        mDirectionOffset = min(int(0.976*mDirectionOffset+10), 335) ;
+    }
+    else{
+        mDirectionOffset = max(int(0.976*mDirectionOffset- 1.96), 0) ;
+    }
+
+    mPlayerCam->Update(mHitboxAbs->x - mDirectionOffset ,mHitboxAbs->y) ;
+    
     mHitboxRel->x = mHitboxAbs->x-mPlayerCam->GetScrollX() ;
     mHitboxRel->y = mHitboxAbs->y-mPlayerCam->GetScrollY() ;
 }

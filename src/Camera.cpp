@@ -13,6 +13,9 @@ void Camera::SetFullScreen(bool isFullScreen, int XoffsetFULLSCREEN, int Yoffset
     }
 }
 
+void Camera::SwitchDirection(){
+    cout<<mScrollX<<endl;
+}
 
 void Camera::Update(int posXabs, int posYabs){
     mTrueScrollX += (posXabs-mTrueScrollX-mXoffset)/mCamSpeedX ;

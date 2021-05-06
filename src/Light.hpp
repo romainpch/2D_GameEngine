@@ -45,8 +45,10 @@ class Light{
         sCell* mWorldCells;
 	    vector<sEdge> mVecEdges;
         vector<tuple<float, float, float> > mVecVisibilityPolygonPoints;
-        SDL_Texture* LightSphere ;
-        SDL_Rect* LightRect ;
+        SDL_Texture* mLightTextureBuffer ;
+        SDL_Texture* mLightTexture ;
+        SDL_Texture* mLightSphereTexture ;
+        SDL_PixelFormat* mPixelFormat;
 
     public: 
         Light(SDL_Renderer* renderer) ;
@@ -57,7 +59,7 @@ class Light{
         void Update(int posXabs, int posYabs, Camera* playerCam, vector<vector< Tile*> > TileMap) ;
         void FillTriangle(SDL_Renderer* renderer, int x1, int y1, int x2, int y2, int x3, int y3, Uint8 r,  Uint8 g,  Uint8 b,  Uint8 a) ;
         void DrawTriangle(SDL_Renderer* renderer, int x1, int y1, int x2, int y2, int x3, int y3, Uint8 r,  Uint8 g,  Uint8 b,  Uint8 a) ;
-        SDL_Texture* CreateMaskTriangle(SDL_Texture* texture, int x1, int y1, int x2, int y2, int x3, int y3) ;
+        void BlurTexture(SDL_Texture* texture, int radius) ;
         void Render(SDL_Renderer* renderer) ;
 } ;
 

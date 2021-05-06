@@ -3,18 +3,19 @@
 // #include "./SDL-br_triangles/include/SDL_render.h"
 
 Light::Light(SDL_Renderer* renderer):mPosRelX(0), mPosRelY(0){
-    mWorldCells = new sCell[20 * 14];
-    LightSphere = IMG_LoadTexture(renderer, "./data/LightSphereT.png") ;
-    LightRect = new SDL_Rect ;
-    LightRect->x = 0 ;
-    LightRect->y = 0 ;
-    LightRect->w = 2560 ;
-    LightRect->h = 1600 ;
+    mWorldCells = new sCell[20 * 18];
+    // LightSphere = IMG_LoadTexture(renderer, "./data/LightSphereT.png") ;
+    mLightTextureBuffer = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888,SDL_TEXTUREACCESS_TARGET,1280,800);
+    mLightTexture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888,SDL_TEXTUREACCESS_TARGET,1280,800);
+    mLightSphereTexture = IMG_LoadTexture(renderer, "./data/Cercle.png") ;
+    mPixelFormat = SDL_AllocFormat(SDL_PIXELFORMAT_RGBA8888);
 }
 
 Light::~Light(){
+    SDL_DestroyTexture(mLightTextureBuffer) ;
+    SDL_DestroyTexture(mLightTexture) ;
+    SDL_DestroyTexture(mLightSphereTexture) ;
     delete mWorldCells ;
-    delete LightRect ;
 }
 
 
@@ -23,7 +24,7 @@ void Light::ConvertTileMapToPolyMap(vector<vector< Tile*> > TileMap){
     //Clear all edges : 
     mVecEdges.clear() ;
     for (int x = 0; x < 20 ; x++){
-        for (int y = 0; y < 14; y++){
+        for (int y = 0; y < 18; y++){
             if(TileMap[y][x] != nullptr){ //x <= 1 or y<=0 or x>=19 or y>=13 or 
                 mWorldCells[y * 20 + x].exist = true ;
             }
@@ -37,10 +38,59 @@ void Light::ConvertTileMapToPolyMap(vector<vector< Tile*> > TileMap){
 			}
         }
     }
-    // for (int x = 1; x < 19; x++)
-    //     for (int y = 1; y < 13; y++)
-    for (int x = 0; x < 20; x++)
-        for (int y = 0; y < 14; y++)
+
+    sEdge top_edge ;
+    top_edge.sx = -80 ;
+    top_edge.sy = - 60 ;
+    top_edge.ex = 1360 ;
+    top_edge.ey = -60 ;
+    mVecEdges.push_back(top_edge);
+    sEdge bottom_edge ;
+    bottom_edge.sx = -80 ;
+    bottom_edge.sy = 860 ;
+    bottom_edge.ex = 1360 ;
+    bottom_edge.ey = 860 ;
+    mVecEdges.push_back(bottom_edge);
+    sEdge left_edge ;
+    left_edge.sx = -80 ;
+    left_edge.sy = - 60 ;
+    left_edge.ex = -80 ;
+    left_edge.ey = 860 ;
+    mVecEdges.push_back(left_edge);
+    sEdge right_edge ;
+    right_edge.sx = 1360 ;
+    right_edge.sy = - 60 ;
+    right_edge.ex = 1360 ;
+    right_edge.ey = 860 ;
+    mVecEdges.push_back(right_edge);
+
+    // sEdge top_edge ;
+    // top_edge.sx = mPosRelX - 200 ;
+    // top_edge.sy = mPosRelY - 150 ;
+    // top_edge.ex = mPosRelX + 200 ;
+    // top_edge.ey = mPosRelY - 150 ;
+    // mVecEdges.push_back(top_edge);
+    // sEdge bottom_edge ;
+    // bottom_edge.sx = mPosRelX - 200;
+    // bottom_edge.sy = mPosRelY + 150 ;
+    // bottom_edge.ex = mPosRelX + 200 ;
+    // bottom_edge.ey = mPosRelY + 150 ;
+    // mVecEdges.push_back(bottom_edge);
+    // sEdge left_edge ;
+    // left_edge.sx = mPosRelX - 200 ;
+    // left_edge.sy = mPosRelY - 150 ;
+    // left_edge.ex = mPosRelX - 200 ;
+    // left_edge.ey = mPosRelY + 150 ;
+    // mVecEdges.push_back(left_edge);
+    // sEdge right_edge ;
+    // right_edge.sx = mPosRelX + 200 ;
+    // right_edge.sy = mPosRelY - 150 ;
+    // right_edge.ex = mPosRelX + 200 ;
+    // right_edge.ey = mPosRelY + 150 ;
+    // mVecEdges.push_back(right_edge);
+
+    for (int x = 2; x < 18; x++)
+        for (int y = 2; y < 16; y++)
         {
             // Create some convenient indices
             int i = y * 20 + x;			// This
@@ -60,7 +110,7 @@ void Light::ConvertTileMapToPolyMap(vector<vector< Tile*> > TileMap){
                     if (mWorldCells[n].edge_exist[WEST])
                     {
                         // Northern neighbour has a western edge, so grow it downwards
-                        mVecEdges[mWorldCells[n].edge_id[WEST]].ey += 80;
+                        mVecEdges[mWorldCells[n].edge_id[WEST]].ey += 60;
                         mWorldCells[i].edge_id[WEST] = mWorldCells[n].edge_id[WEST];
                         mWorldCells[i].edge_exist[WEST] = true;
                     }
@@ -69,7 +119,7 @@ void Light::ConvertTileMapToPolyMap(vector<vector< Tile*> > TileMap){
                         // Northern neighbour does not have one, so create one
                         sEdge edge;
                         edge.sx = TileMap[y][x]->mRectRel->x  ; edge.sy = TileMap[y][x]->mRectRel->y ;
-                        edge.ex = edge.sx; edge.ey = edge.sy + 80;
+                        edge.ex = edge.sx; edge.ey = edge.sy + 60;
 
                         // Add edge to Polygon Pool
                         int edge_id = mVecEdges.size();
@@ -89,7 +139,7 @@ void Light::ConvertTileMapToPolyMap(vector<vector< Tile*> > TileMap){
                     if (mWorldCells[n].edge_exist[EAST])
                     {
                         // Northern neighbour has one, so grow it downwards
-                        mVecEdges[mWorldCells[n].edge_id[EAST]].ey += 80;
+                        mVecEdges[mWorldCells[n].edge_id[EAST]].ey += 60;
                         mWorldCells[i].edge_id[EAST] = mWorldCells[n].edge_id[EAST];
                         mWorldCells[i].edge_exist[EAST] = true;
                     }
@@ -98,7 +148,7 @@ void Light::ConvertTileMapToPolyMap(vector<vector< Tile*> > TileMap){
                         // Northern neighbour does not have one, so create one
                         sEdge edge;
                         edge.sx = TileMap[y][x]->mRectRel->x + 80  ; edge.sy = TileMap[y][x]->mRectRel->y ;
-                        edge.ex = edge.sx; edge.ey = edge.sy + 80;
+                        edge.ex = edge.sx; edge.ey = edge.sy + 60;
 
                         // Add edge to Polygon Pool
                         int edge_id = mVecEdges.size();
@@ -155,7 +205,7 @@ void Light::ConvertTileMapToPolyMap(vector<vector< Tile*> > TileMap){
                     {
                         // Western neighbour does not have one, so I need to create one
                         sEdge edge;
-                        edge.sx = TileMap[y][x]->mRectRel->x ; edge.sy = TileMap[y][x]->mRectRel->y + 80 ;
+                        edge.sx = TileMap[y][x]->mRectRel->x ; edge.sy = TileMap[y][x]->mRectRel->y + 60 ;
                         edge.ex = edge.sx + 80; edge.ey = edge.sy;
 
                         // Add edge to Polygon Pool
@@ -275,8 +325,8 @@ void Light::CalculateVisibilityPolygon(float ox, float oy, float radius){
 
 void Light::FillTriangle(SDL_Renderer* renderer, int x1, int y1, int x2, int y2, int x3, int y3, Uint8 r,  Uint8 g,  Uint8 b,  Uint8 a){
     filledTrigonRGBA(renderer,  x1,  y1,  x2,  y2,  x3,  y3,  r,  g,  b,  a);
-    SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF) ;
-//     //Sorting (x,y) by y ascending
+//     SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF) ;
+// //     //Sorting (x,y) by y ascending
 //     int xS1, yS1, xS2, yS2, xS3, yS3 ;
 //     yS1 = min(y1,min(y2,y3)) ;
 //     if(yS1==y1){
@@ -360,48 +410,70 @@ void Light::DrawTriangle(SDL_Renderer* renderer, int x1, int y1, int x2, int y2,
 }
 
 void Light::Update(int posXabs, int posYabs, Camera* playerCam, vector<vector< Tile*> > TileMap){
-    mPosRelX =  posXabs - playerCam->GetScrollX() + 40 ;
-    mPosRelY = posYabs - playerCam->GetScrollY() + 80 ;
+    mPosRelX =  posXabs - playerCam->GetScrollX() + 23 ;
+    mPosRelY = posYabs - playerCam->GetScrollY() + 100 ;
 
     ConvertTileMapToPolyMap(TileMap) ;
-    CalculateVisibilityPolygon(mPosRelX, mPosRelY, 1000.0f) ;
+    CalculateVisibilityPolygon(mPosRelX, mPosRelY, 1.0f) ;
 }
 
-SDL_Texture* Light::CreateMaskTriangle(SDL_Texture* texture, int x1, int y1, int x2, int y2, int x3, int y3){
-    SDL_Texture* a(nullptr) ;
-    return a ;
+
+void Light::BlurTexture(SDL_Texture* texture, int radius){
+    void* pixels ;
+    int pitch ;
+    SDL_Color c;
+    SDL_LockTexture(texture,NULL,&pixels,&pitch) ;
+
+    Uint32 * upixels = (Uint32 *) pixels;
+
+    for(int x = mPosRelX - 150 ; x < mPosRelX + 150 ; x++){
+        for(int y = mPosRelY - 150 ; y < mPosRelY + 150 ; y++){
+            // cout<<upixels[x*300+y] <<endl ;
+            SDL_GetRGBA(upixels[x*1280+y], mPixelFormat, &c.r, &c.g, &c.b, &c.a);
+            
+        }   
+    }
+    SDL_UnlockTexture(texture) ;
 }
 
 void Light::Render(SDL_Renderer* renderer){
-    SDL_Rect ScreenRect ;
-    ScreenRect.x = 0 ;
-    ScreenRect.y = 0 ;
-    ScreenRect.w = 1280 ;
-    ScreenRect.h = 800 ;
-    
-    SDL_SetRenderDrawColor(renderer, 10, 10, 10, 0xFF) ;
-    SDL_RenderFillRect(renderer, &ScreenRect) ;
-    SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF) ;
+    SDL_SetRenderTarget(renderer, mLightTexture) ;
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0) ;
+    SDL_RenderClear(renderer) ;
+    SDL_Rect lightRect = {mPosRelX-150, mPosRelY-150, 300, 300};
+    SDL_SetTextureBlendMode(mLightSphereTexture, SDL_BLENDMODE_BLEND) ;
+    SDL_RenderCopy(renderer, mLightSphereTexture,NULL, &lightRect); 
+
+    //On va dessiner sur mLightTexture
+    SDL_SetRenderTarget(renderer, mLightTextureBuffer); 
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0) ;
+    SDL_RenderClear(renderer) ;
     // Draw each triangle in fan
-    // cout<<mVecVisibilityPolygonPoints.size()<<" Triangles"<<endl ;
+    cout<<mVecVisibilityPolygonPoints.size()<<" Triangles"<<endl ;
     for (int i = 0; i < mVecVisibilityPolygonPoints.size() - 1; i++){
-        FillTriangle(renderer, mPosRelX, mPosRelY, get<1>(mVecVisibilityPolygonPoints[i]), get<2>(mVecVisibilityPolygonPoints[i]), get<1>(mVecVisibilityPolygonPoints[i + 1]), get<2>(mVecVisibilityPolygonPoints[i + 1]), 0xFF, 230, 139, 0xFF) ;
+        FillTriangle(renderer, mPosRelX, mPosRelY, get<1>(mVecVisibilityPolygonPoints[i]), get<2>(mVecVisibilityPolygonPoints[i]), get<1>(mVecVisibilityPolygonPoints[i + 1]), get<2>(mVecVisibilityPolygonPoints[i + 1]), 0, 0, 0, 0xFF) ;
     }
-
     // // Fan will have one open edge, so draw last point of fan to first
-    FillTriangle(renderer, mPosRelX, mPosRelY, get<1>(mVecVisibilityPolygonPoints[mVecVisibilityPolygonPoints.size() - 1]), get<2>(mVecVisibilityPolygonPoints[mVecVisibilityPolygonPoints.size() - 1]), get<1>(mVecVisibilityPolygonPoints[0]), get<2>(mVecVisibilityPolygonPoints[0]), 0xFF, 230, 139, 0xFF) ; 
+    FillTriangle(renderer, mPosRelX, mPosRelY, get<1>(mVecVisibilityPolygonPoints[mVecVisibilityPolygonPoints.size() - 1]), get<2>(mVecVisibilityPolygonPoints[mVecVisibilityPolygonPoints.size() - 1]), get<1>(mVecVisibilityPolygonPoints[0]), get<2>(mVecVisibilityPolygonPoints[0]), 0, 0, 0, 0xFF) ; 
+    
 
-    // Adding LightSphere effect
-    LightRect->x = mPosRelX - 1280 ;
-    LightRect->y = mPosRelY - 800;
-
-    SDL_SetTextureBlendMode(LightSphere, SDL_BLENDMODE_BLEND) ;
-
-    // cout<<"mPosrel"<<mPosRelX<<" : "<<mPosRelY<<endl ;
-
-    SDL_RenderCopy(renderer, LightSphere, NULL, LightRect); 
-    // SDL_RenderCopy()
+    // BlurTexture(mLightTextureBuffer, 3) ;
 
 
+    SDL_SetTextureBlendMode(mLightTexture, SDL_BLENDMODE_ADD) ;
+    SDL_RenderCopy(renderer, mLightTexture, NULL,NULL);
+
+    SDL_SetRenderTarget(renderer, NULL);
+    SDL_SetTextureBlendMode(mLightTextureBuffer, SDL_BLENDMODE_ADD) ;
+    SDL_RenderCopy(renderer, mLightTextureBuffer, NULL, NULL) ;
+
+    
+    // // Draw each triangle in fan
+    // cout<<mVecVisibilityPolygonPoints.size()<<" Triangles"<<endl ;
+    // for (int i = 0; i < mVecVisibilityPolygonPoints.size() - 1; i++){
+    //     FillTriangle(renderer, mPosRelX, mPosRelY, get<1>(mVecVisibilityPolygonPoints[i]), get<2>(mVecVisibilityPolygonPoints[i]), get<1>(mVecVisibilityPolygonPoints[i + 1]), get<2>(mVecVisibilityPolygonPoints[i + 1]), 255, 0, 0, 0xFF) ;
+    // }
+    // // // Fan will have one open edge, so draw last point of fan to first
+    // FillTriangle(renderer, mPosRelX, mPosRelY, get<1>(mVecVisibilityPolygonPoints[mVecVisibilityPolygonPoints.size() - 1]), get<2>(mVecVisibilityPolygonPoints[mVecVisibilityPolygonPoints.size() - 1]), get<1>(mVecVisibilityPolygonPoints[0]), get<2>(mVecVisibilityPolygonPoints[0]), 255, 255, 0, 0xFF) ; 
 
 }

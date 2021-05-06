@@ -65,6 +65,7 @@ class Player : public Entity{
         double mTaccelX, mTaccelY ;
         bool isAccelX ;
         int mDirection ;
+        int mDirectionOffset ;
 
         bool isClimbing ;
 

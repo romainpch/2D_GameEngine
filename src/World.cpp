@@ -6,12 +6,12 @@ Tile::Tile(){
     mRectAbs->x = 0 ;
     mRectAbs->y = 0 ;
     mRectAbs->w = 80 ;
-    mRectAbs->h = 80 ;
+    mRectAbs->h = 60 ;
     mRectRel = new SDL_Rect ;
     mRectRel->x = 0 ;
     mRectRel->y = 0 ;
     mRectRel->w = 80 ;
-    mRectRel->h = 80 ;
+    mRectRel->h = 60 ;
 }
 
 Tile::~Tile(){
@@ -38,7 +38,7 @@ World::~World(){
 
 void World::LoadFromFile(string path){
     //Initialisation d'une matrice 18*12 de nullptr pour mVisible tiles
-    for(int i=0 ; i< 14 ; i++){
+    for(int i=0 ; i< 18 ; i++){
         vector<Tile*> row ;
         for(int j=0 ; j<20 ; j++){
             row.push_back(nullptr) ;
@@ -57,24 +57,11 @@ void World::LoadFromFile(string path){
             if(int(c-'0')==1){
                 Tile* tile  = new Tile;
                 tile->mRectAbs->x = 80*(j-2); 
-                tile->mRectAbs->y = 80*(i-2);
+                tile->mRectAbs->y = 60*(i-2);
                 tile->mRectRel->x = 80*(j-2); 
-                tile->mRectRel->y = 80*(i-2);
+                tile->mRectRel->y = 60*(i-2);
                 layer.push_back(tile) ;
-                if(i < 14 and j < 20){
-                    mVisibleTiles[i][j] = tile ;
-                }
-            }
-            else if(int(c-'0')==2){
-                Tile* tile  = new Tile;
-                tile->mRectAbs->x = 80*(j-2); 
-                tile->mRectAbs->y = 80*(i-2);
-                tile->mRectAbs->h = 40;
-                tile->mRectRel->x = 80*(j-2); 
-                tile->mRectRel->y = 80*(i-2);
-                tile->mRectRel->h = 40;
-                layer.push_back(tile) ;
-                if(i < 14 and j < 20){
+                if(i < 18 and j < 20){
                     mVisibleTiles[i][j] = tile ;
                 }
             }
@@ -89,14 +76,14 @@ void World::LoadFromFile(string path){
 
 void World::Update(){
     //Le joueur va en bas
-    if(mPlayerCam->GetScrollY() + mPlayerCam->GetYoffset() > (mVisibleI*80 + 40)){
+    if(mPlayerCam->GetScrollY() + mPlayerCam->GetYoffset() > (mVisibleI*60 + 30)){
         vector<Tile*> newRow ;
         //On enleve la première ligne du haut de mVisibleTiles
         mVisibleTiles.erase(mVisibleTiles.begin()) ;
-        if(mVisibleI+14 < mTiles.size()){//S'il existe des tiles à ajouter (qui sont dans mTiles)
+        if(mVisibleI+18 < mTiles.size()){//S'il existe des tiles à ajouter (qui sont dans mTiles)
             for(int j = mVisibleJ ; j < mVisibleJ + 20 ; j++){
-                if(j<mTiles[mVisibleI+14].size()){
-                    newRow.push_back(mTiles[mVisibleI+14][j]) ;
+                if(j<mTiles[mVisibleI+18].size()){
+                    newRow.push_back(mTiles[mVisibleI+18][j]) ;
                 }
                 else{
                     newRow.push_back(nullptr) ;
@@ -114,7 +101,7 @@ void World::Update(){
     }
 
     // Le joueur va en haut
-    if(mPlayerCam->GetScrollY() + mPlayerCam->GetYoffset() < (mVisibleI*80 - 40)){
+    if(mPlayerCam->GetScrollY() + mPlayerCam->GetYoffset() < (mVisibleI*60 - 30)){
         vector<Tile*> newRow ;
         //On enleve la dernière ligne du bas de mVisibleTiles
         mVisibleTiles.erase(mVisibleTiles.end() - 1) ;
@@ -140,7 +127,7 @@ void World::Update(){
 
     //Le joueur va à droite
     if(mPlayerCam->GetScrollX() + mPlayerCam->GetXoffset() > (mVisibleJ*80 + 40)){
-        for(int i=0 ; i<14 ; i++){
+        for(int i=0 ; i<18 ; i++){
             //On supprime à gauche l'elément de mVisibleTiles
             mVisibleTiles[i].erase(mVisibleTiles[i].begin()) ;
             //On ajoute à droite le bon élement de mTiles
@@ -156,7 +143,7 @@ void World::Update(){
 
     //Le joueur va à gauche
     if(mPlayerCam->GetScrollX() + mPlayerCam->GetXoffset() < (mVisibleJ*80 - 40)){
-        for(int i=0 ; i<14 ; i++){
+        for(int i=0 ; i<18 ; i++){
             //On supprime à droite l'elément de mVisibleTiles
             mVisibleTiles[i].erase(mVisibleTiles[i].end() - 1) ;
             //On ajoute à gauche le bon élement de mTiles
@@ -172,7 +159,7 @@ void World::Update(){
 
 
 
-    for(int i=0 ; i<14; i++){
+    for(int i=0 ; i<18; i++){
         for(int j=0 ; j<20 ; j++){
             if( mVisibleTiles[i][j]!= nullptr){
                 mVisibleTiles[i][j]->mRectRel->x = mVisibleTiles[i][j]->mRectAbs->x  - (mPlayerCam->GetScrollX() + mPlayerCam->GetXoffset()) ;
@@ -185,7 +172,7 @@ void World::Update(){
 
 void World::Render(SDL_Renderer* renderer){
     SDL_Rect RectToRender ;
-    for(int i=0 ; i<14; i++){
+    for(int i=0 ; i<18; i++){
         for(int j=0 ; j<20 ; j++){
             if( mVisibleTiles[i][j]!= nullptr){
                 SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0xFF) ;
@@ -193,7 +180,7 @@ void World::Render(SDL_Renderer* renderer){
 
                 // SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0, 0xFF) ;
                 // SDL_RenderDrawRect(renderer, mVisibleTiles[i][j]->mRectRel);
-                SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF) ;
+                // SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF) ;
             }
         }
     }

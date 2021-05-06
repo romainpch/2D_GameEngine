@@ -11,7 +11,7 @@
 #include "./src/Light.cpp"
 #include "./src/Animation.cpp"
 
-
+// https://github.com/zloedi/grid_fov
 
 using namespace std ;
 
@@ -34,7 +34,7 @@ bool init(){
 	}
 	else{
 		//Set texture filtering to linear
-		if( !SDL_SetHint( SDL_HINT_RENDER_SCALE_QUALITY, "1" ) ){
+		if( !SDL_SetHint( SDL_HINT_RENDER_SCALE_QUALITY, "0" ) ){
 			printf( "Warning: Linear texture filtering not enabled!" );
 		}
 
@@ -56,8 +56,7 @@ bool init(){
 			else
 			{
 				//Initialize renderer color
-                SDL_SetRenderDrawColor( gRenderer, 0xFF, 0xFF, 0xFF, 0xFF );
-                SDL_SetHint (SDL_HINT_RENDER_SCALE_QUALITY, "0"); //For pixel art
+                SDL_SetRenderDrawColor( gRenderer, 41, 42, 77, 0xFF );
 				//Initialize PNG loading
 				int imgFlags = IMG_INIT_PNG;
 				if( !( IMG_Init( imgFlags ) & imgFlags ) )
@@ -91,10 +90,9 @@ int main(int argc, char const *argv[]){
 	}
     else{
         //Camera Initialisation
-        int PlayerXOffset(240) ;
-        // int PlayerYOffset(480) ;
+        // int PlayerXOffset(240) ;
+        int PlayerXOffset(400) ;
         int PlayerYOffset(320) ;
-        // int PlayerYOffset(824) ;
         Camera* Game_Cam = new Camera(PlayerXOffset, PlayerYOffset) ;
 
         //Map Initialisation
@@ -103,8 +101,10 @@ int main(int argc, char const *argv[]){
         Game_Map->SetPlayerCam(Game_Cam) ;
 
         // Player Initialisation
-        int PlayerWidth(60) ;
-        int PlayerHeight(160) ;
+        // int PlayerWidth(60) ;
+        // int PlayerHeight(160) ;
+        int PlayerWidth(46) ;
+        int PlayerHeight(120) ;
         Player* Game_Player = new Player ;
         Game_Player->SetDimension(PlayerWidth,PlayerHeight) ;
         Game_Player->SetCamera(Game_Cam) ;
@@ -124,6 +124,7 @@ int main(int argc, char const *argv[]){
         int countedFrames = 0;
         fpsTimer.start();
         while(!quit){
+            SDL_SetRenderDrawColor( gRenderer, 41, 42, 77, 0xFF );
             SDL_RenderClear( gRenderer );
             //Handle events on queue
             while( SDL_PollEvent( &e ) != 0 ){
@@ -171,17 +172,18 @@ int main(int argc, char const *argv[]){
             
             // Game_Map->RenderBackGround(gRenderer) ;
             
-            //Game_Player->RenderLight(gRenderer) ;
+            
             Game_Map->Render(gRenderer) ;
+            Game_Player->RenderLight(gRenderer) ;
             Game_Player->Render(gRenderer) ;
-            //Game_Player->ShowHitbox(gRenderer) ;
+            // Game_Player->ShowHitbox(gRenderer) ;
 
 
             //Update the surface
             SDL_RenderPresent( gRenderer );
             //Calculate and correct fps
             float avgFPS = countedFrames / ( fpsTimer.getTicks() / 1000.f );
-            // cout<<avgFPS<<endl ;
+            cout<<avgFPS<<endl ;
             ++countedFrames;
             // quit=true ;
         }

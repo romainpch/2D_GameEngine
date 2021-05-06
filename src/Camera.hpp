@@ -39,6 +39,8 @@ class Camera{
         int GetCamSpeedX(){return mCamSpeedX ;} ;
         int GetCamSpeedY(){return mCamSpeedY ;} ;
 
+        void SwitchDirection() ;
+
         void SetFullScreen(bool isFullScreen, int XoffsetFULLSCREEN, int YoffsetFULLSCREEN) ;
 
         void Update(int posXabs, int posYabs) ;
